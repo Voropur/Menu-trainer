@@ -1,820 +1,631 @@
 <!DOCTYPE html>
-<html lang="ru" class="dark">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Тренажёр составов меню — Asian Kitchen</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-          },
-          colors: {
-            brand: {
-              50: '#fff1f2',
-              100: '#ffe4e6',
-              500: '#f43f5e',
-              600: '#e11d48',
-              700: '#be123c',
-              900: '#881337',
-            },
-            asian: {
-              gold: '#f59e0b',
-              dark: '#0f172a',
-              card: '#1e293b',
-              border: '#334155'
-            }
-          }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Тренажёр Меню</title>
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Меню-Тренер">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍜</text></svg>">
+    <link rel="manifest" href='data:application/json,{"name":"Тренажёр Меню","short_name":"МенюТренер","start_url":".","display":"standalone","background_color":"#121212","theme_color":"#1a1a2e","icons":[{"src":"data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><text y=\".9em\" font-size=\"90\">🍜</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}'>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --card-bg: #1e1e24;
+            --accent: #ff4757;
+            --green: #2ed573;
+            --red: #ff4757;
+            --text: #f1f2f6;
+            --text-dim: #a4b0be;
+            --border: #2f3542;
         }
-      }
-    }
-  </script>
-  <style>
-    body {
-      background-color: #090d16;
-      color: #f8fafc;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 6px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: #0f172a;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #334155;
-      border-radius: 4px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: #475569;
-    }
-    @keyframes pulse-subtle {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.03); }
-    }
-    .animate-pulse-subtle {
-      animation: pulse-subtle 0.3s ease-in-out;
-    }
-  </style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 30px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 15px 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            color: #fff;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            background: var(--card-bg);
+            padding: 10px;
+            margin: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+
+        .stat-item span {
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin: 0 15px 15px 15px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 8px 12px;
+            border-radius: 16px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            flex: 1;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .container {
+            padding: 0 15px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .dish-title {
+            font-size: 1.25rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #fff;
+        }
+
+        .ingredients-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .ing-btn {
+            background: #252530;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 12px 8px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+        }
+
+        .ing-btn.selected {
+            background: #3b3b4f;
+            border-color: #58587a;
+        }
+
+        .ing-btn.correct {
+            background: var(--green) !important;
+            color: #000 !important;
+            font-weight: bold;
+            border-color: var(--green) !important;
+        }
+
+        .ing-btn.wrong {
+            background: var(--red) !important;
+            color: white !important;
+            border-color: var(--red) !important;
+        }
+
+        .tf-question {
+            font-size: 1.1rem;
+            text-align: center;
+            margin: 20px 0;
+            line-height: 1.5;
+        }
+
+        .tf-question highlight {
+            color: #eccc68;
+            font-weight: bold;
+        }
+
+        .tf-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .tf-btn {
+            flex: 1;
+            padding: 15px;
+            border-radius: 12px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+        }
+
+        .tf-btn.yes { background: var(--green); color: #000; }
+        .tf-btn.no { background: var(--red); }
+
+        .action-btn {
+            width: 100%;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .search-input, .select-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: white;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+
+        .dict-item {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .dict-item h3 {
+            font-size: 1rem;
+            color: var(--accent);
+            margin-bottom: 5px;
+        }
+
+        .dict-item p {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.4;
+        }
+
+        .mode-switch {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 8px;
+            background: #252530;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .mode-btn.active {
+            background: #3b3b4f;
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .hidden { display: none !important; }
+        .feedback {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+    </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+<body>
 
-  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
-    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-amber-500 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-brand-600/30">
-          🥢
-        </div>
-        <div>
-          <h1 class="text-lg font-bold text-white leading-tight">ProMenu Master</h1>
-          <p class="text-xs text-amber-400 font-medium">Азиатская кухня &bull; 21 позиция</p>
-        </div>
-      </div>
+    <header>
+        <h1>🍜 Меню-Тренер (Офлайн)</h1>
+    </header>
 
-      <!-- Header Stats & Navigation -->
-      <div class="flex items-center gap-2 sm:gap-4">
-        <div class="bg-slate-800/80 border border-slate-700/60 rounded-lg px-3 py-1.5 flex items-center gap-2 text-xs">
-          <span class="text-amber-400 font-bold flex items-center gap-1">
-            🔥 <span id="streak-counter">0</span>
-          </span>
-          <span class="text-slate-500">|</span>
-          <span class="text-emerald-400 font-bold" id="score-counter">0/0</span>
-        </div>
-        <button id="btn-reference" onclick="switchView('reference')" class="p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition" title="Справочник составов">
-          📖 <span class="hidden md:inline text-xs font-semibold ml-1">Шпаргалка</span>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <main class="max-w-5xl mx-auto px-4 py-6 flex-1 w-full flex flex-col">
-
-    <!-- Mode Selector Tabs -->
-    <div class="grid grid-cols-3 gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800 mb-6 text-xs sm:text-sm font-semibold">
-      <button id="tab-quiz" onclick="switchMode('quiz')" class="py-2.5 px-3 rounded-lg text-center transition-all bg-brand-600 text-white shadow">
-        🎯 Сбор состава
-      </button>
-      <button id="tab-tf" onclick="switchMode('tf')" class="py-2.5 px-3 rounded-lg text-center transition-all text-slate-400 hover:text-slate-200">
-        ⚡ Правда / Ложь
-      </button>
-      <button id="tab-checklist" onclick="switchMode('checklist')" class="py-2.5 px-3 rounded-lg text-center transition-all text-slate-400 hover:text-slate-200">
-        📝 Чек-лист по блюду
-      </button>
+    <div class="stats-bar">
+        <div class="stat-item">Серия: <span id="streak">0</span> 🔥</div>
+        <div class="stat-item">Рекорд: <span id="max-streak">0</span> 🏆</div>
+        <div class="stat-item">Ошибок: <span id="errors-count">0</span> ❌</div>
     </div>
 
-    <!-- VIEW 1: QUIZ / PICK INGREDIENTS MODE -->
-    <section id="view-quiz" class="flex-1 flex flex-col justify-between">
-      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 sm:p-7 shadow-xl mb-4 relative overflow-hidden">
-        <div class="flex justify-between items-start mb-4">
-          <div>
-            <span class="text-xs uppercase tracking-wider font-extrabold text-brand-500 bg-brand-900/40 border border-brand-700/50 px-2.5 py-1 rounded-md">
-              Вопрос <span id="quiz-q-num">1</span>
-            </span>
-            <h2 id="quiz-dish-name" class="text-2xl sm:text-3xl font-extrabold text-white mt-2">
-              Загрузка...
-            </h2>
-          </div>
-          <button onclick="nextQuizQuestion(true)" class="text-xs text-slate-400 hover:text-slate-200 underline">
-            Пропустить ➔
-          </button>
-        </div>
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchMode('build', this)">🎮 Сбор</button>
+        <button class="tab-btn" onclick="switchMode('tf', this)">⚡ Правда/Ложь</button>
+        <button class="tab-btn" onclick="switchMode('checklist', this)">✅ Чек-лист</button>
+        <button class="tab-btn" onclick="switchMode('dict', this)">📖 Меню</button>
+    </div>
 
-        <p class="text-sm text-slate-400 mb-6">
-          Выберите <strong class="text-slate-200">ВСЕ</strong> правильные ингредиенты для этого блюда:
-        </p>
-
-        <!-- Ingredient Chips Container -->
-        <div id="quiz-options-grid" class="flex flex-wrap gap-2.5 mb-6">
-          <!-- Dynamically populated -->
-        </div>
-
-        <!-- Feedback Box -->
-        <div id="quiz-feedback" class="hidden p-4 rounded-xl border mb-4 text-sm font-medium"></div>
-
-        <!-- Submit Button -->
-        <div class="flex gap-3">
-          <button id="quiz-submit-btn" onclick="checkQuizAnswer()" class="w-full py-3.5 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-600 font-bold text-white rounded-xl shadow-lg transition active:scale-[0.99] text-sm sm:text-base">
-            Проверить ответ
-          </button>
-          <button id="quiz-next-btn" onclick="nextQuizQuestion()" class="hidden w-full py-3.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 font-bold text-white rounded-xl transition text-sm sm:text-base">
-            Следующее блюдо ➔
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- VIEW 2: TRUE / FALSE MODE -->
-    <section id="view-tf" class="hidden flex-1 flex flex-col justify-center">
-      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 sm:p-10 shadow-xl text-center max-w-xl mx-auto w-full my-auto">
-        <span class="text-xs uppercase tracking-wider font-extrabold text-amber-500 bg-amber-900/30 border border-amber-700/40 px-3 py-1 rounded-md">
-          Быстрый контроль
-        </span>
+    <div class="container">
         
-        <h3 id="tf-dish-title" class="text-xl sm:text-2xl font-bold text-slate-300 mt-4 mb-2">
-          Блюдо...
-        </h3>
-
-        <div class="py-6 px-4 my-4 bg-slate-800/60 rounded-xl border border-slate-700/50">
-          <p class="text-xs text-slate-400 mb-1">Входит ли этот ингредиент в состав?</p>
-          <p id="tf-ingredient-name" class="text-2xl sm:text-3xl font-extrabold text-amber-400">
-            Ингредиент...
-          </p>
-        </div>
-
-        <!-- Feedback -->
-        <div id="tf-feedback" class="hidden p-3 rounded-lg border mb-4 text-sm font-semibold"></div>
-
-        <!-- Buttons -->
-        <div id="tf-buttons" class="grid grid-cols-2 gap-4 mt-6">
-          <button onclick="answerTF(true)" class="py-4 bg-emerald-600/90 hover:bg-emerald-500 font-extrabold text-white text-lg rounded-xl transition shadow-lg flex items-center justify-center gap-2">
-            <span>✅</span> ДА
-          </button>
-          <button onclick="answerTF(false)" class="py-4 bg-rose-600/90 hover:bg-rose-500 font-extrabold text-white text-lg rounded-xl transition shadow-lg flex items-center justify-center gap-2">
-            <span>❌</span> НЕТ
-          </button>
-        </div>
-
-        <button id="tf-next-btn" onclick="nextTFQuestion()" class="hidden w-full mt-4 py-3.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 font-bold text-white rounded-xl transition">
-          Следующий вопрос ➔
-        </button>
-      </div>
-    </section>
-
-    <!-- VIEW 3: CHECKLIST MODE -->
-    <section id="view-checklist" class="hidden flex-1 flex flex-col">
-      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 sm:p-7 shadow-xl">
-        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-          Выберите позицию из меню:
-        </label>
-        <select id="checklist-select" onchange="loadChecklistDish()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white font-semibold mb-6 focus:outline-none focus:border-brand-500">
-          <!-- Options dynamically loaded -->
-        </select>
-
-        <p class="text-xs text-slate-400 mb-3">
-          Отметьте ингредиенты, которые помните, а затем нажмите «Проверить себя»:
-        </p>
-
-        <!-- Pool of all possible common ingredients -->
-        <div id="checklist-ingredients-grid" class="flex flex-wrap gap-2 mb-6 max-h-[350px] overflow-y-auto p-1 custom-scrollbar">
-          <!-- Dynamic -->
-        </div>
-
-        <div id="checklist-result" class="hidden p-4 rounded-xl border mb-4 text-sm"></div>
-
-        <div class="flex gap-3">
-          <button onclick="checkChecklist()" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl transition">
-            Проверить себя
-          </button>
-          <button onclick="resetChecklist()" class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl transition">
-            Сброс
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- VIEW 4: REFERENCE / CHEAT SHEET -->
-    <section id="view-reference" class="hidden flex-1">
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-7 shadow-xl">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-          <div>
-            <h2 class="text-2xl font-black text-white">Полное меню и составы</h2>
-            <p class="text-xs text-slate-400">21 позиция азиатской кухни для заучивания</p>
-          </div>
-          <input type="text" id="reference-search" oninput="filterReference()" placeholder="Поиск по блюду или ингредиенту..." class="w-full sm:w-64 bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
-        </div>
-
-        <div id="reference-list" class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
-          <!-- Dynamic -->
-        </div>
-      </div>
-    </section>
-
-    <!-- Mistake Review Drawer/Modal Button -->
-    <div class="mt-6 flex justify-between items-center text-xs text-slate-500">
-      <button onclick="showMistakesModal()" class="hover:text-amber-400 underline flex items-center gap-1">
-        ⚠️ Мои ошибки (<span id="mistakes-count">0</span>)
-      </button>
-      <button onclick="resetStats()" class="hover:text-rose-400 underline">
-        Сбросить статистику
-      </button>
-    </div>
-
-  </main>
-
-  <div id="mistakes-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-bold text-white flex items-center gap-2">
-          <span>⚠️</span> Сложные позиции (Ошибки)
-        </h3>
-        <button onclick="hideMistakesModal()" class="text-slate-400 hover:text-white text-xl">✕</button>
-      </div>
-      <div id="mistakes-list" class="space-y-3 max-h-60 overflow-y-auto pr-1 custom-scrollbar text-xs">
-        <!-- Dynamic mistakes -->
-      </div>
-      <button onclick="hideMistakesModal()" class="w-full mt-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl text-xs">
-        Закрыть
-      </button>
-    </div>
-  </div>
-
-  <footer class="text-center py-3 border-t border-slate-800/60 text-[11px] text-slate-500">
-    Asian Kitchen Menu Trainer &bull; Обучающий игровой модуль
-  </footer>
-
-  <script>
-    // Database of dishes and ingredients
-    const MENU = [
-      {
-        id: 1,
-        name: "1. Салатная заправка",
-        ingredients: ["устричный соус", "соевый соус", "сахар", "белый рисовый уксус", "чеснок", "имбирь", "зеленый лук", "чили перец"],
-        notes: "Острая пряная заправка"
-      },
-      {
-        id: 2,
-        name: "2. Крылышки Сычуаньские",
-        ingredients: ["кочхуджан (качудян)", "томатная паста", "соевый соус"],
-        notes: "Паста кочхуджан задает пикантность"
-      },
-      {
-        id: 3,
-        name: "3. 5 специй (Усяньмянь)",
-        ingredients: ["бадьян", "сычуаньский перец", "корица", "имбирь", "кориандр"],
-        notes: "Смесь пряностей"
-      },
-      {
-        id: 4,
-        name: "4. Рисовый соус",
-        ingredients: ["кунжутное масло", "устричный соус"],
-        notes: "Простой базовый соус"
-      },
-      {
-        id: 5,
-        name: "5. Чоу-мейн (Соус)",
-        ingredients: ["соевый соус", "устричный соус", "темный соевый соус", "белый рисовый уксус", "кунжутное масло"],
-        notes: "Классический соус для лапши"
-      },
-      {
-        id: 6,
-        name: "6. Удон (Соус)",
-        ingredients: ["соевый соус", "устричный соус", "темный соевый соус", "белый рисовый уксус", "кунжутное масло"],
-        notes: "Соус точно такой же, как на Чоу-мейн"
-      },
-      {
-        id: 7,
-        name: "7. Кисло-сладкий соус",
-        ingredients: ["белый рисовый уксус", "сахар", "кетчуп", "соевый соус", "ананасовый сок"],
-        notes: "Основа на ананасовом соке и кетчупе"
-      },
-      {
-        id: 8,
-        name: "8. Гун бао соус",
-        ingredients: ["светлый соевый соус", "темный соевый соус", "сахар", "маласянь", "кунжутное масло", "белый рисовый уксус"],
-        notes: "Содержит приправу маласянь"
-      },
-      {
-        id: 9,
-        name: "9. Цзо соус (Генерала Цо)",
-        ingredients: ["сахар", "апельсиновый сок", "хойсин", "кетчуп", "светлый соевый соус", "темный соевый соус", "белый рисовый уксус"],
-        notes: "Содержит хойсин и апельсиновый сок"
-      },
-      {
-        id: 10,
-        name: "10. Апельсиновый соус",
-        ingredients: ["апельсиновый сок", "цедра апельсина", "апельсины", "кунжутное масло", "чеснок", "имбирь"],
-        notes: "Свежие апельсины + цедра"
-      },
-      {
-        id: 11,
-        name: "11. Свинина веревочкой (Юйсянь)",
-        ingredients: [
-          "свинина (маринад: соевый соус, вино)", "бамбук", "морковь", "основания зеленого лука", "чеснок", "имбирь", "древесные грибы муэр", 
-          "соус табадзян", "шаосинское вино", "соевый соус", "устричный соус"
-        ],
-        notes: "Свинина маринуется отдельно. Соус на основе табадзян."
-      },
-      {
-        id: 12,
-        name: "12. Хун шао соус",
-        ingredients: ["бадьян", "лавровый лист", "корица", "сычуаньский перец горошком", "черный перец горошком", "соевый соус", "темный соевый соус", "шаосинское вино"],
-        notes: "Пряный ароматный соус с цельными специями"
-      },
-      {
-        id: 13,
-        name: "13. Пекинская свинина",
-        ingredients: ["соус BBQ с хойсином, чесноком и имбирем", "свинина 150 г"],
-        notes: "Свинина 150 г"
-      },
-      {
-        id: 14,
-        name: "14. Говядина в ЧП (Черный перец)",
-        ingredients: ["морковь", "лук", "перец", "брокколи", "мини-кукуруза", "стручковая фасоль", "соус блэк пеппер"],
-        notes: "Овощной микс с соусом Блэк пеппер"
-      },
-      {
-        id: 15,
-        name: "15. Монгольская говядина",
-        ingredients: [
-          "говядина", "морковь", "болгарский перец", "репчатый лук", "сушеный чили перец", 
-          "соус чоу-мейн", "зеленый лук перо", "сахар", "шаосинское вино", "основания зеленого лука"
-        ],
-        notes: "Использует готовый соус чоу-мейн"
-      },
-      {
-        id: 16,
-        name: "16. Баранина",
-        ingredients: ["зира", "кинза", "фиолетовый лук", "соевый соус", "вино"],
-        notes: "Характерная приправа — зира и свежая кинза"
-      },
-      {
-        id: 17,
-        name: "17. Креветки в тайском стиле",
-        ingredients: ["листья лайма", "лемонграсс", "чеснок", "имбирь", "соус тайваньской чили пасты", "базилик", "соевый соус"],
-        notes: "Тайский аромат: лемонграсс + листья лайма + базилик"
-      },
-      {
-        id: 18,
-        name: "18. Баклажан со свининой",
-        ingredients: ["соус табадзян", "чеснок", "имбирь", "сахар", "шаосинское вино"],
-        notes: "Острая паста табадзян"
-      },
-      {
-        id: 19,
-        name: "19. Пикантный баклажан",
-        ingredients: ["темный соевый соус", "светлый соевый соус", "белый рисовый уксус", "сахар"],
-        notes: "Лаконичный кисло-сладко-соленый соус"
-      },
-      {
-        id: 20,
-        name: "20. Тофу по-домашнему",
-        ingredients: ["основания зеленого лука", "морковь", "болгарский перец", "грибы шиитаке", "грибы муэр", "соус юйсянь (табадзян, вино, соевый, устричный)"],
-        notes: "Соус такой же, как для 'Свинины веревочкой' (юйсянь)"
-      },
-      {
-        id: 21,
-        name: "21. Три земных свежести",
-        ingredients: ["приправа маласянь", "устричный соус", "сахар"],
-        notes: "Основа вкуса: маласянь и устричный соус"
-      }
-    ];
-
-    // Distractor ingredients pool for randomizing wrong options
-    const DISTRACTORS = [
-      "кунжут", "арахис", "крахмал кукурузный", "рыбный соус", "соус тонкацу", 
-      "майонез", "перцовое масло", "кокосовое молоко", "паста карри", "укроп", 
-      "куриный бульон", "паприка", "яблочный уксус", "соус терияки", "глутамат натрия"
-    ];
-
-    // App State Variables
-    let currentMode = 'quiz';
-    let streak = 0;
-    let scoreTotal = 0;
-    let scoreCorrect = 0;
-    let mistakes = {}; // dishId -> error count
-    let currentQuizDish = null;
-    let selectedQuizIngredients = new Set();
-    let currentTFDish = null;
-    let currentTFIngredient = "";
-    let isTFCorrectAnswer = false;
-
-    window.onload = function() {
-      loadStats();
-      setupChecklistSelect();
-      renderReferenceList();
-      nextQuizQuestion();
-      nextTFQuestion();
-      loadChecklistDish();
-    };
-
-    // View & Mode Switcher
-    function switchMode(mode) {
-      currentMode = mode;
-      document.getElementById('view-quiz').classList.add('hidden');
-      document.getElementById('view-tf').classList.add('hidden');
-      document.getElementById('view-checklist').classList.add('hidden');
-      document.getElementById('view-reference').classList.add('hidden');
-
-      // Reset Tab Highlights
-      ['quiz', 'tf', 'checklist'].forEach(m => {
-        const btn = document.getElementById(`tab-${m}`);
-        if(btn) {
-          btn.className = "py-2.5 px-3 rounded-lg text-center transition-all text-slate-400 hover:text-slate-200";
-        }
-      });
-
-      document.getElementById(`view-${mode}`).classList.remove('hidden');
-      const activeBtn = document.getElementById(`tab-${mode}`);
-      if(activeBtn) {
-        activeBtn.className = "py-2.5 px-3 rounded-lg text-center transition-all bg-brand-600 text-white shadow font-bold";
-      }
-    }
-
-    function switchView(viewName) {
-      if(viewName === 'reference') {
-        document.getElementById('view-quiz').classList.add('hidden');
-        document.getElementById('view-tf').classList.add('hidden');
-        document.getElementById('view-checklist').classList.add('hidden');
-        document.getElementById('view-reference').classList.remove('hidden');
-      }
-    }
-
-    function nextQuizQuestion(skipped = false) {
-      if(skipped) {
-        streak = 0;
-        updateStatsUI();
-      }
-
-      const feedback = document.getElementById('quiz-feedback');
-      feedback.className = "hidden p-4 rounded-xl border mb-4 text-sm font-medium";
-      document.getElementById('quiz-submit-btn').classList.remove('hidden');
-      document.getElementById('quiz-next-btn').classList.add('hidden');
-
-      // Select random dish
-      currentQuizDish = MENU[Math.floor(Math.random() * MENU.length)];
-      document.getElementById('quiz-dish-name').innerText = currentQuizDish.name;
-
-      selectedQuizIngredients.clear();
-
-      // Collect correct ingredients + distractors
-      const correctList = [...currentQuizDish.ingredients];
-      let pool = [...correctList];
-
-      // Add wrong ingredients from other dishes or distractors
-      while(pool.length < Math.max(correctList.length + 4, 8)) {
-        let otherDish = MENU[Math.floor(Math.random() * MENU.length)];
-        let randomIng = otherDish.ingredients[Math.floor(Math.random() * otherDish.ingredients.length)];
-        if(!pool.includes(randomIng)) {
-          pool.push(randomIng);
-        }
-        if(pool.length >= 10) break;
-      }
-
-      // Shuffle pool
-      pool.sort(() => Math.random() - 0.5);
-
-      // Render Chips
-      const container = document.getElementById('quiz-options-grid');
-      container.innerHTML = '';
-
-      pool.forEach(ing => {
-        const chip = document.createElement('button');
-        chip.type = 'button';
-        chip.className = 'px-3.5 py-2 rounded-xl border text-xs sm:text-sm font-medium transition-all bg-slate-800/80 border-slate-700 text-slate-300 hover:border-slate-500';
-        chip.innerText = ing;
-        chip.onclick = () => toggleQuizIngredient(chip, ing);
-        container.appendChild(chip);
-      });
-    }
-
-    function toggleQuizIngredient(chipBtn, ing) {
-      if(selectedQuizIngredients.has(ing)) {
-        selectedQuizIngredients.delete(ing);
-        chipBtn.className = 'px-3.5 py-2 rounded-xl border text-xs sm:text-sm font-medium transition-all bg-slate-800/80 border-slate-700 text-slate-300 hover:border-slate-500';
-      } else {
-        selectedQuizIngredients.add(ing);
-        chipBtn.className = 'px-3.5 py-2 rounded-xl border text-xs sm:text-sm font-semibold transition-all bg-brand-600/30 border-brand-500 text-brand-200 shadow-sm';
-      }
-    }
-
-    function checkQuizAnswer() {
-      if(selectedQuizIngredients.size === 0) {
-        alert("Пожалуйста, выберите хотя бы один ингредиент!");
-        return;
-      }
-
-      const correctSet = new Set(currentQuizDish.ingredients);
-      let isPerfect = true;
-
-      // Check if sizes match and all selected are correct
-      if(selectedQuizIngredients.size !== correctSet.size) {
-        isPerfect = false;
-      } else {
-        for(let item of selectedQuizIngredients) {
-          if(!correctSet.has(item)) {
-            isPerfect = false;
-            break;
-          }
-        }
-      }
-
-      scoreTotal++;
-      const feedback = document.getElementById('quiz-feedback');
-      feedback.classList.remove('hidden');
-
-      if(isPerfect) {
-        scoreCorrect++;
-        streak++;
-        feedback.className = "p-4 rounded-xl border border-emerald-500/50 bg-emerald-950/40 text-emerald-300 text-sm";
-        feedback.innerHTML = `<strong>✅ Отлично! Всё верно!</strong><br><span class="text-xs text-emerald-400/80">Особенность: ${currentQuizDish.notes}</span>`;
-      } else {
-        streak = 0;
-        recordMistake(currentQuizDish.id);
-        feedback.className = "p-4 rounded-xl border border-rose-500/50 bg-rose-950/40 text-rose-300 text-sm";
-        feedback.innerHTML = `
-          <strong>❌ Ошибка в составе!</strong><br>
-          <div class="mt-1.5 text-xs text-rose-200">
-            <strong>Правильный состав:</strong> ${currentQuizDish.ingredients.join(', ')}.
-          </div>
-        `;
-      }
-
-      updateStatsUI();
-      document.getElementById('quiz-submit-btn').classList.add('hidden');
-      document.getElementById('quiz-next-btn').classList.remove('hidden');
-    }
-
-    function nextTFQuestion() {
-      const feedback = document.getElementById('tf-feedback');
-      feedback.className = "hidden p-3 rounded-lg border mb-4 text-sm font-semibold";
-      document.getElementById('tf-buttons').classList.remove('hidden');
-      document.getElementById('tf-next-btn').classList.add('hidden');
-
-      currentTFDish = MENU[Math.floor(Math.random() * MENU.length)];
-      document.getElementById('tf-dish-title').innerText = currentTFDish.name;
-
-      // 50% chance to pick true ingredient vs distractor
-      isTFCorrectAnswer = Math.random() > 0.5;
-
-      if(isTFCorrectAnswer) {
-        currentTFIngredient = currentTFDish.ingredients[Math.floor(Math.random() * currentTFDish.ingredients.length)];
-      } else {
-        // Pick wrong ingredient
-        let otherDish = MENU.find(d => d.id !== currentTFDish.id);
-        let candidates = otherDish.ingredients.filter(i => !currentTFDish.ingredients.includes(i));
-        currentTFIngredient = candidates.length > 0 ? candidates[Math.floor(Math.random() * candidates.length)] : DISTRACTORS[0];
-      }
-
-      document.getElementById('tf-ingredient-name').innerText = currentTFIngredient;
-    }
-
-    function answerTF(userChoice) {
-      scoreTotal++;
-      const isCorrect = (userChoice === isTFCorrectAnswer);
-      const feedback = document.getElementById('tf-feedback');
-      feedback.classList.remove('hidden');
-
-      if(isCorrect) {
-        scoreCorrect++;
-        streak++;
-        feedback.className = "p-3 rounded-lg border border-emerald-500/50 bg-emerald-950/40 text-emerald-300 text-sm";
-        feedback.innerText = "✅ Верно! Отличная память.";
-      } else {
-        streak = 0;
-        recordMistake(currentTFDish.id);
-        feedback.className = "p-3 rounded-lg border border-rose-500/50 bg-rose-950/40 text-rose-300 text-sm";
-        feedback.innerText = `❌ Неверно! Для ${currentTFDish.name} правильный состав: ${currentTFDish.ingredients.join(', ')}`;
-      }
-
-      updateStatsUI();
-      document.getElementById('tf-buttons').classList.add('hidden');
-      document.getElementById('tf-next-btn').classList.remove('hidden');
-    }
-
-    function setupChecklistSelect() {
-      const select = document.getElementById('checklist-select');
-      select.innerHTML = '';
-      MENU.forEach(dish => {
-        const opt = document.createElement('option');
-        opt.value = dish.id;
-        opt.innerText = dish.name;
-        select.appendChild(opt);
-      });
-    }
-
-    let checklistSelectedSet = new Set();
-
-    function loadChecklistDish() {
-      checklistSelectedSet.clear();
-      document.getElementById('checklist-result').className = "hidden p-4 rounded-xl border mb-4 text-sm";
-      const dishId = parseInt(document.getElementById('checklist-select').value);
-      const dish = MENU.find(d => d.id === dishId);
-
-      // Collect all unique ingredients from whole menu
-      let allIngredients = new Set();
-      MENU.forEach(d => d.ingredients.forEach(i => allIngredients.add(i)));
-      let pool = Array.from(allIngredients).sort(() => Math.random() - 0.5);
-
-      const grid = document.getElementById('checklist-ingredients-grid');
-      grid.innerHTML = '';
-
-      pool.forEach(ing => {
-        const btn = document.createElement('button');
-        btn.className = "px-3 py-1.5 rounded-lg border text-xs font-medium bg-slate-800 border-slate-700 text-slate-300 transition hover:border-slate-500";
-        btn.innerText = ing;
-        btn.onclick = () => {
-          if(checklistSelectedSet.has(ing)) {
-            checklistSelectedSet.delete(ing);
-            btn.className = "px-3 py-1.5 rounded-lg border text-xs font-medium bg-slate-800 border-slate-700 text-slate-300 transition hover:border-slate-500";
-          } else {
-            checklistSelectedSet.add(ing);
-            btn.className = "px-3 py-1.5 rounded-lg border text-xs font-semibold bg-brand-600/30 border-brand-500 text-brand-200 transition";
-          }
-        };
-        grid.appendChild(btn);
-      });
-    }
-
-    function checkChecklist() {
-      const dishId = parseInt(document.getElementById('checklist-select').value);
-      const dish = MENU.find(d => d.id === dishId);
-      const targetSet = new Set(dish.ingredients);
-
-      let correctCount = 0;
-      let wrongCount = 0;
-
-      checklistSelectedSet.forEach(ing => {
-        if(targetSet.has(ing)) correctCount++;
-        else wrongCount++;
-      });
-
-      const missingCount = targetSet.size - correctCount;
-      const res = document.getElementById('checklist-result');
-      res.classList.remove('hidden');
-
-      if(correctCount === targetSet.size && wrongCount === 0) {
-        res.className = "p-4 rounded-xl border border-emerald-500/50 bg-emerald-950/40 text-emerald-300 text-sm";
-        res.innerHTML = `🎉 <strong>Идеально!</strong> Вы точно помните весь состав ${dish.name}!`;
-      } else {
-        res.className = "p-4 rounded-xl border border-amber-500/50 bg-amber-950/40 text-amber-200 text-sm";
-        res.innerHTML = `
-          <strong>Результат:</strong> Найдено ${correctCount} из ${targetSet.size}. Лишних: ${wrongCount}. Пропущено: ${missingCount}.<br>
-          <div class="mt-2 text-xs text-amber-300">
-            <strong>Полный рецепт:</strong> ${dish.ingredients.join(', ')}
-          </div>
-        `;
-      }
-    }
-
-    function resetChecklist() {
-      loadChecklistDish();
-    }
-
-    function renderReferenceList(filterText = '') {
-      const container = document.getElementById('reference-list');
-      container.innerHTML = '';
-
-      const filtered = MENU.filter(dish => {
-        const text = (dish.name + ' ' + dish.ingredients.join(' ') + ' ' + dish.notes).toLowerCase();
-        return text.includes(filterText.toLowerCase());
-      });
-
-      if(filtered.length === 0) {
-        container.innerHTML = `<div class="col-span-full text-center py-8 text-slate-500 text-sm">Ничего не найдено</div>`;
-        return;
-      }
-
-      filtered.forEach(dish => {
-        const card = document.createElement('div');
-        card.className = "p-4 bg-slate-800/60 border border-slate-700/60 rounded-xl hover:border-slate-600 transition";
-        card.innerHTML = `
-          <h4 class="font-bold text-white text-base mb-1.5 flex justify-between items-center">
-            <span>${dish.name}</span>
-            <span class="text-[10px] font-normal px-2 py-0.5 rounded bg-slate-700 text-slate-300">#${dish.id}</span>
-          </h4>
-          <p class="text-xs text-brand-300 font-medium mb-2">${dish.ingredients.join(' • ')}</p>
-          <p class="text-[11px] text-slate-400 italic">💡 ${dish.notes}</p>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    function filterReference() {
-      const val = document.getElementById('reference-search').value;
-      renderReferenceList(val);
-    }
-
-    function recordMistake(dishId) {
-      mistakes[dishId] = (mistakes[dishId] || 0) + 1;
-      saveStats();
-      updateMistakesUI();
-    }
-
-    function updateStatsUI() {
-      document.getElementById('streak-counter').innerText = streak;
-      document.getElementById('score-counter').innerText = `${scoreCorrect}/${scoreTotal}`;
-      saveStats();
-    }
-
-    function updateMistakesUI() {
-      const count = Object.keys(mistakes).length;
-      document.getElementById('mistakes-count').innerText = count;
-
-      const list = document.getElementById('mistakes-list');
-      list.innerHTML = '';
-
-      if(count === 0) {
-        list.innerHTML = `<div class="text-center py-4 text-slate-500">У вас пока нет зарегистрированных ошибок! 🎉</div>`;
-        return;
-      }
-
-      Object.keys(mistakes).forEach(idStr => {
-        const id = parseInt(idStr);
-        const dish = MENU.find(d => d.id === id);
-        if(dish) {
-          const item = document.createElement('div');
-          item.className = "p-3 bg-slate-800 rounded-lg border border-slate-700 flex justify-between items-start";
-          item.innerHTML = `
-            <div>
-              <div class="font-bold text-white">${dish.name}</div>
-              <div class="text-[11px] text-slate-400 mt-0.5">${dish.ingredients.join(', ')}</div>
+        <!-- РЕЖИМ 1: СБОР СОСТАВА -->
+        <div id="mode-build">
+            <div class="mode-switch">
+                <button class="mode-btn active" onclick="setPool('all', this)">Все блюда</button>
+                <button class="mode-btn" onclick="setPool('errors', this)">Только ошибки (<span id="err-badge">0</span>)</button>
             </div>
-            <span class="bg-rose-900/60 text-rose-300 px-2 py-0.5 rounded font-bold text-[10px] border border-rose-700">
-              ${mistakes[id]} ош.
-            </span>
-          `;
-          list.appendChild(item);
+
+            <div class="card">
+                <div class="dish-title" id="build-dish-name">Загрузка...</div>
+                <div class="ingredients-grid" id="build-ingredients"></div>
+                <button class="action-btn" id="build-check-btn" onclick="checkBuild()">Проверить</button>
+            </div>
+        </div>
+
+        <!-- РЕЖИМ 2: ПРАВДА ИЛИ ЛОЖЬ -->
+        <div id="mode-tf" class="hidden">
+            <div class="card">
+                <div class="dish-title" id="tf-dish-name">Загрузка...</div>
+                <div class="tf-question" id="tf-question-text">...</div>
+                <div class="tf-buttons" id="tf-actions">
+                    <button class="tf-btn yes" onclick="answerTF(true)">ДА</button>
+                    <button class="tf-btn no" onclick="answerTF(false)">НЕТ</button>
+                </div>
+                <div class="feedback hidden" id="tf-feedback"></div>
+                <button class="action-btn hidden" id="tf-next-btn" style="margin-top:15px" onclick="nextTF()">Следующий вопрос ➔</button>
+            </div>
+        </div>
+
+        <!-- РЕЖИМ 3: ЧЕК-ЛИСТ -->
+        <div id="mode-checklist" class="hidden">
+            <div class="card">
+                <label style="font-size:0.85rem; color:var(--text-dim); display:block; margin-bottom:5px;">Выберите блюдо для самопроверки:</label>
+                <select class="select-input" id="checklist-select" onchange="loadChecklist()"></select>
+                <div class="ingredients-grid" id="checklist-grid"></div>
+                <button class="action-btn" onclick="revealChecklist()">Показать верный состав</button>
+            </div>
+        </div>
+
+        <!-- ВКЛАДКА: СПРАВОЧНИК -->
+        <div id="mode-dict" class="hidden">
+            <input type="text" class="search-input" id="search-bar" placeholder="Поиск блюда или ингредиента..." oninput="filterDict()">
+            <div id="dict-list"></div>
+        </div>
+
+    </div>
+
+    <script>
+        const menuData = [
+            { id: 1, name: "Салатная заправка", ingredients: ["Устричный соус", "Соевый соус", "Сахар", "Белый рисовый уксус", "Чеснок", "Имбирь", "Зеленый лук", "Чили перец"] },
+            { id: 2, name: "Крылышки Сычуаньские", ingredients: ["Качудян", "Томатная паста", "Соевый соус"] },
+            { id: 3, name: "5 специй", ingredients: ["Бадьян", "Сычуаньский перец", "Корица", "Имбирь", "Кориандр"] },
+            { id: 4, name: "Рисовый соус", ingredients: ["Кунжутное масло", "Устричный соус"] },
+            { id: 5, name: "Чоу-мейн (соус)", ingredients: ["Соевый соус", "Устричный соус", "Темный соевый соус", "Белый рисовый уксус", "Кунжутное масло"] },
+            { id: 6, name: "Удон (соус)", ingredients: ["Соевый соус", "Устричный соус", "Темный соевый соус", "Белый рисовый уксус", "Кунжутное масло"] },
+            { id: 7, name: "Кисло-сладкий соус", ingredients: ["Белый рисовый уксус", "Сахар", "Кетчуп", "Соевый соус", "Ананасовый сок"] },
+            { id: 8, name: "Гун бао соус", ingredients: ["Светлый соевый соус", "Темный соевый соус", "Сахар", "Маласянь", "Кунжутное масло", "Белый рисовый уксус"] },
+            { id: 9, name: "Цзо соус", ingredients: ["Сахар", "Апельсиновый сок", "Хойсин", "Кетчуп", "Светлый соевый соус", "Темный соевый соус", "Белый рисовый уксус"] },
+            { id: 10, name: "Апельсиновый соус", ingredients: ["Апельсиновый сок", "Цедра апельсина", "Апельсины", "Кунжутное масло", "Чеснок", "Имбирь"] },
+            { id: 11, name: "Свинина веревочкой", ingredients: ["Свинина", "Вино шаосиньское", "Соевый соус", "Бамбук", "Морковь", "Основания зеленого лука", "Чеснок", "Имбирь", "Муэр", "Соус Табадзян", "Устричный соус"] },
+            { id: 12, name: "Хун шао соус", ingredients: ["Бадьян", "Лавровый лист", "Корица", "Сычуаньский перец горошком", "Черный перец горошком", "Соевый соус", "Темный соевый соус", "Вино шаосиньское"] },
+            { id: 13, name: "Пекинская свинина", ingredients: ["Свинина 150г", "Соус Барбекю", "Хойсин", "Чеснок", "Имбирь"] },
+            { id: 14, name: "Говядина в ЧП", ingredients: ["Говядина", "Морковь", "Лук репчатый", "Перец болгарский", "Брокколи", "Мини кукуруза", "Фасоль", "Соус Блэк Пеппер"] },
+            { id: 15, name: "Монгольская говядина", ingredients: ["Говядина", "Морковь", "Перец болгарский", "Лук репчатый", "Сушеный чили перец", "Соус чоу-мейн", "Зеленый лук перо", "Сахар", "Вино шаосиньское", "Основания зеленого лука"] },
+            { id: 16, name: "Баранина", ingredients: ["Баранина", "Зира", "Кинза", "Фиолетовый лук", "Соевый соус", "Вино"] },
+            { id: 17, name: "Креветки в тайском стиле", ingredients: ["Креветки", "Листья лайма", "Лемонграсс", "Чеснок", "Имбирь", "Тайваньская чили паста", "Базилик", "Соевый соус"] },
+            { id: 18, name: "Баклажан со свининой", ingredients: ["Баклажан", "Свинина", "Соус Табадзян", "Чеснок", "Имбирь", "Сахар", "Вино шаосиньское"] },
+            { id: 19, name: "Пикантный баклажан", ingredients: ["Баклажан", "Соевый соус темный", "Соевый соус светлый", "Белый рисовый уксус", "Сахар"] },
+            { id: 20, name: "Тофу по-домашнему", ingredients: ["Тофу", "Основания зеленого лука", "Морковь", "Болгарский перец", "Шиитаке", "Муэр", "Соус Юсянь"] },
+            { id: 21, name: "Три земных свежести", ingredients: ["Картофель/Перец/Баклажан", "Соус маласянь", "Устричный соус", "Сахар"] }
+        ];
+
+        const allIngredients = Array.from(new Set(menuData.flatMap(d => d.ingredients)));
+
+        let currentDish = null;
+        let selectedIngs = new Set();
+        let streak = 0;
+        let maxStreak = localStorage.getItem('maxStreak') || 0;
+        let errorList = JSON.parse(localStorage.getItem('errorList')) || [];
+        let poolType = 'all';
+        let isChecked = false;
+        let tfCurrent = {};
+
+        document.getElementById('max-streak').textContent = maxStreak;
+
+        function init() {
+            updateStats();
+            renderDict();
+            initChecklistSelect();
+            nextBuild();
+            nextTF();
         }
-      });
-    }
 
-    function showMistakesModal() {
-      updateMistakesUI();
-      document.getElementById('mistakes-modal').classList.remove('hidden');
-    }
+        // Переключение режимов
+        function switchMode(mode, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            ['build', 'tf', 'checklist', 'dict'].forEach(m => {
+                document.getElementById('mode-' + m).classList.add('hidden');
+            });
+            document.getElementById('mode-' + mode).classList.remove('hidden');
+        }
 
-    function hideMistakesModal() {
-      document.getElementById('mistakes-modal').classList.add('hidden');
-    }
+        function setPool(type, btn) {
+            if (type === 'errors' && errorList.length === 0) {
+                alert("У вас пока нет ошибок!");
+                return;
+            }
+            poolType = type;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            nextBuild();
+        }
 
-    function saveStats() {
-      localStorage.setItem('asian_trainer_streak', streak);
-      localStorage.setItem('asian_trainer_scoreTotal', scoreTotal);
-      localStorage.setItem('asian_trainer_scoreCorrect', scoreCorrect);
-      localStorage.setItem('asian_trainer_mistakes', JSON.stringify(mistakes));
-    }
+        // --- РЕЖИМ 1: СБОР СОСТАВА ---
+        function nextBuild() {
+            isChecked = false;
+            selectedIngs.clear();
+            
+            let pool = menuData;
+            if (poolType === 'errors' && errorList.length > 0) {
+                pool = menuData.filter(d => errorList.includes(d.id));
+            }
 
-    function loadStats() {
-      streak = parseInt(localStorage.getItem('asian_trainer_streak')) || 0;
-      scoreTotal = parseInt(localStorage.getItem('asian_trainer_scoreTotal')) || 0;
-      scoreCorrect = parseInt(localStorage.getItem('asian_trainer_scoreCorrect')) || 0;
-      try {
-        mistakes = JSON.parse(localStorage.getItem('asian_trainer_mistakes')) || {};
-      } catch(e) {
-        mistakes = {};
-      }
-      updateStatsUI();
-      updateMistakesUI();
-    }
+            currentDish = pool[Math.floor(Math.random() * pool.length)];
+            document.getElementById('build-dish-name').textContent = currentDish.name;
 
-    function resetStats() {
-      if(confirm("Вы уверены, что хотите сбросить всю статистику и ошибки?")) {
-        streak = 0;
-        scoreTotal = 0;
-        scoreCorrect = 0;
-        mistakes = {};
-        saveStats();
-        updateStatsUI();
-        updateMistakesUI();
-      }
-    }
-  </script>
+            const correct = currentDish.ingredients;
+            const wrongCandidates = allIngredients.filter(i => !correct.includes(i));
+            const wrong = wrongCandidates.sort(() => 0.5 - Math.random()).slice(0, Math.min(4, wrongCandidates.length));
+            const options = [...correct, ...wrong].sort(() => 0.5 - Math.random());
+
+            const container = document.getElementById('build-ingredients');
+            container.innerHTML = '';
+            
+            options.forEach(ing => {
+                const btn = document.createElement('button');
+                btn.className = 'ing-btn';
+                btn.textContent = ing;
+                btn.onclick = () => {
+                    if (isChecked) return;
+                    if (selectedIngs.has(ing)) {
+                        selectedIngs.delete(ing);
+                        btn.classList.remove('selected');
+                    } else {
+                        selectedIngs.add(ing);
+                        btn.classList.add('selected');
+                    }
+                };
+                container.appendChild(btn);
+            });
+
+            const checkBtn = document.getElementById('build-check-btn');
+            checkBtn.textContent = 'Проверить';
+            checkBtn.style.background = 'var(--accent)';
+        }
+
+        function checkBuild() {
+            if (isChecked) {
+                nextBuild();
+                return;
+            }
+            if (selectedIngs.size === 0) {
+                alert("Выберите хотя бы один ингредиент!");
+                return;
+            }
+
+            isChecked = true;
+            const correctSet = new Set(currentDish.ingredients);
+            let isCorrect = (selectedIngs.size === correctSet.size);
+            
+            if (isCorrect) {
+                for (let item of selectedIngs) {
+                    if (!correctSet.has(item)) { isCorrect = false; break; }
+                }
+            }
+
+            document.querySelectorAll('#build-ingredients .ing-btn').forEach(btn => {
+                const text = btn.textContent;
+                if (correctSet.has(text)) btn.classList.add('correct');
+                else if (selectedIngs.has(text)) btn.classList.add('wrong');
+            });
+
+            handleResult(isCorrect, currentDish.id);
+            const checkBtn = document.getElementById('build-check-btn');
+            checkBtn.textContent = 'Следующее блюдо ➔';
+            checkBtn.style.background = isCorrect ? 'var(--green)' : 'var(--red)';
+        }
+
+        // --- РЕЖИМ 2: ПРАВДА / ЛОЖЬ ---
+        function nextTF() {
+            document.getElementById('tf-actions').classList.remove('hidden');
+            document.getElementById('tf-feedback').classList.add('hidden');
+            document.getElementById('tf-next-btn').classList.add('hidden');
+
+            const dish = menuData[Math.floor(Math.random() * menuData.length)];
+            const shouldBeTrue = Math.random() > 0.5;
+            let ingredient = '';
+
+            if (shouldBeTrue) {
+                ingredient = dish.ingredients[Math.floor(Math.random() * dish.ingredients.length)];
+            } else {
+                const wrongList = allIngredients.filter(i => !dish.ingredients.includes(i));
+                ingredient = wrongList[Math.floor(Math.random() * wrongList.length)];
+            }
+
+            tfCurrent = { dish, ingredient, isTrue: shouldBeTrue };
+
+            document.getElementById('tf-dish-name').textContent = dish.name;
+            document.getElementById('tf-question-text').innerHTML = `Входит ли <highlight>"${ingredient}"</highlight> в состав?`;
+        }
+
+        function answerTF(userAnswer) {
+            const isCorrect = (userAnswer === tfCurrent.isTrue);
+            document.getElementById('tf-actions').classList.add('hidden');
+            
+            const feedback = document.getElementById('tf-feedback');
+            feedback.classList.remove('hidden');
+            
+            if (isCorrect) {
+                feedback.textContent = "Правильно! 🎉";
+                feedback.style.color = "var(--green)";
+            } else {
+                feedback.textContent = tfCurrent.isTrue 
+                    ? `Ошибка! "${tfCurrent.ingredient}" ДЕЙСТВИТЕЛЬНО входит в состав.` 
+                    : `Ошибка! "${tfCurrent.ingredient}" НЕ входит в состав.`;
+                feedback.style.color = "var(--red)";
+            }
+
+            handleResult(isCorrect, tfCurrent.dish.id);
+            document.getElementById('tf-next-btn').classList.remove('hidden');
+        }
+
+        // --- РЕЖИМ 3: ЧЕК-ЛИСТ ---
+        function initChecklistSelect() {
+            const select = document.getElementById('checklist-select');
+            select.innerHTML = '';
+            menuData.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d.id;
+                opt.textContent = `${d.id}. ${d.name}`;
+                select.appendChild(opt);
+            });
+            loadChecklist();
+        }
+
+        function loadChecklist() {
+            const id = parseInt(document.getElementById('checklist-select').value);
+            const dish = menuData.find(d => d.id === id);
+            const container = document.getElementById('checklist-grid');
+            container.innerHTML = '';
+
+            // Перемешиваем варианты для самопроверки
+            const wrongCandidates = allIngredients.filter(i => !dish.ingredients.includes(i));
+            const wrong = wrongCandidates.sort(() => 0.5 - Math.random()).slice(0, 4);
+            const options = [...dish.ingredients, ...wrong].sort(() => 0.5 - Math.random());
+
+            options.forEach(ing => {
+                const btn = document.createElement('button');
+                btn.className = 'ing-btn';
+                btn.textContent = ing;
+                btn.onclick = () => btn.classList.toggle('selected');
+                container.appendChild(btn);
+            });
+        }
+
+        function revealChecklist() {
+            const id = parseInt(document.getElementById('checklist-select').value);
+            const dish = menuData.find(d => d.id === id);
+            const correctSet = new Set(dish.ingredients);
+
+            document.querySelectorAll('#checklist-grid .ing-btn').forEach(btn => {
+                if (correctSet.has(btn.textContent)) {
+                    btn.classList.add('correct');
+                } else if (btn.classList.contains('selected')) {
+                    btn.classList.add('wrong');
+                }
+            });
+        }
+
+        // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
+        function handleResult(isCorrect, dishId) {
+            if (isCorrect) {
+                streak++;
+                if (streak > maxStreak) {
+                    maxStreak = streak;
+                    localStorage.setItem('maxStreak', maxStreak);
+                }
+                errorList = errorList.filter(id => id !== dishId);
+            } else {
+                streak = 0;
+                if (!errorList.includes(dishId)) errorList.push(dishId);
+            }
+            localStorage.setItem('errorList', JSON.stringify(errorList));
+            updateStats();
+        }
+
+        function updateStats() {
+            document.getElementById('streak').textContent = streak;
+            document.getElementById('max-streak').textContent = maxStreak;
+            document.getElementById('errors-count').textContent = errorList.length;
+            document.getElementById('err-badge').textContent = errorList.length;
+        }
+
+        function renderDict(filter = '') {
+            const container = document.getElementById('dict-list');
+            container.innerHTML = '';
+            const filtered = menuData.filter(d => 
+                d.name.toLowerCase().includes(filter.toLowerCase()) || 
+                d.ingredients.some(i => i.toLowerCase().includes(filter.toLowerCase()))
+            );
+            filtered.forEach(d => {
+                const item = document.createElement('div');
+                item.className = 'dict-item';
+                item.innerHTML = `<h3>${d.id}. ${d.name}</h3><p><b>Состав:</b> ${d.ingredients.join(', ')}</p>`;
+                container.appendChild(item);
+            });
+        }
+
+        function filterDict() {
+            renderDict(document.getElementById('search-bar').value);
+        }
+
+        // Автономный Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const blob = new Blob([`
+                    self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
+                    self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+                    self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => new Response('Offline'))));
+                `], { type: 'text/javascript' });
+                navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
+            });
+        }
+
+        init();
+    </script>
 </body>
 </html>
