@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Тренажёр составов меню — Asian Kitchen</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#fff1f2',
+              100: '#ffe4e6',
+              500: '#f43f5e',
+              600: '#e11d48',
+              700: '#be123c',
+              900: '#881337',
+            },
+            asian: {
+              gold: '#f59e0b',
+              dark: '#0f172a',
+              card: '#1e293b',
+              border: '#334155'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #090d16;
+      color: #f8fafc;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    @keyframes pulse-subtle {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+    .animate-pulse-subtle {
+      animation: pulse-subtle 0.3s ease-in-out;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-amber-500 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-brand-600/30">
+          🥢
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-white leading-tight">ProMenu Master</h1>
+          <p class="text-xs text-amber-400 font-medium">Азиатская кухня &bull; 21 позиция</p>
+        </div>
+      </div>
+
+      <!-- Header Stats & Navigation -->
+      <div class="flex items-center gap-2 sm:gap-4">
+        <div class="bg-slate-800/80 border border-slate-700/60 rounded-lg px-3 py-1.5 flex items-center gap-2 text-xs">
+          <span class="text-amber-400 font-bold flex items-center gap-1">
+            🔥 <span id="streak-counter">0</span>
+          </span>
+          <span class="text-slate-500">|</span>
+          <span class="text-emerald-400 font-bold" id="score-counter">0/0</span>
+        </div>
+        <button id="btn-reference" onclick="switchView('reference')" class="p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition" title="Справочник составов">
+          📖 <span class="hidden md:inline text-xs font-semibold ml-1">Шпаргалка</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 py-6 flex-1 w-full flex flex-col">
+
+    <!-- Mode Selector Tabs -->
+    <div class="grid grid-cols-3 gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800 mb-6 text-xs sm:text-sm font-semibold">
+      <button id="tab-quiz" onclick="switchMode('quiz')" class="py-2.5 px-3 rounded-lg text-center transition-all bg-brand-600 text-white shadow">
+        🎯 Сбор состава
+      </button>
+      <button id="tab-tf" onclick="switchMode('tf')" class="py-2.5 px-3 rounded-lg text-center transition-all text-slate-400 hover:text-slate-200">
+        ⚡ Правда / Ложь
+      </button>
+      <button id="tab-checklist" onclick="switchMode('checklist')" class="py-2.5 px-3 rounded-lg text-center transition-all text-slate-400 hover:text-slate-200">
+        📝 Чек-лист по блюду
+      </button>
+    </div>
+
+    <!-- VIEW 1: QUIZ / PICK INGREDIENTS MODE -->
+    <section id="view-quiz" class="flex-1 flex flex-col justify-between">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 sm:p-7 shadow-xl mb-4 relative overflow-hidden">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <span class="text-xs uppercase tracking-wider font-extrabold text-brand-500 bg-brand-900/40 border border-brand-700/50 px-2.5 py-1 rounded-md">
+              Вопрос <span id="quiz-q-num">1</span>
+            </span>
+            <h2 id="quiz-dish-name" class="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+              Загрузка...
+            </h2>
+          </div>
+          <button onclick="nextQuizQuestion(true)" class="text-xs text-slate-400 hover:text-slate-200 underline">
+            Пропустить ➔
+          </button>
+        </div>
+
+        <p class="text-sm text-slate-400 mb-6">
+          Выберите <strong class="text-slate-200">ВСЕ</strong> правильные ингредиенты для этого блюда:
+        </p>
+
+        <!-- Ingredient Chips Container -->
+        <div id="quiz-options-grid" class="flex flex-wrap gap-2.5 mb-6">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- Feedback Box -->
+        <div id="quiz-feedback" class="hidden p-4 rounded-xl border mb-4 text-sm font-medium"></div>
+
+        <!-- Submit Button -->
+        <div class="flex gap-3">
+          <button id="quiz-submit-btn" onclick="checkQuizAnswer()" class="w-full py-3.5 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-600 font-bold text-white rounded-xl shadow-lg transition active:scale-[0.99] text-sm sm:text-base">
+            Проверить ответ
+          </button>
+          <button id="quiz-next-btn" onclick="nextQuizQuestion()" class="hidden w-full py-3.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 font-bold text-white rounded-xl transition text-sm sm:text-base">
+            Следующее блюдо ➔
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: TRUE / FALSE MODE -->
+    <section id="view-tf" class="hidden flex-1 flex flex-col justify-center">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 sm:p-10 shadow-xl text-center max-w-xl mx-auto w-full my-auto">
+        <span class="text-xs uppercase tracking-wider font-extrabold text-amber-500 bg-amber-900/30 border border-amber-700/40 px-3 py-1 rounded-md">
+          Быстрый контроль
+        </span>
+        
+        <h3 id="tf-dish-title" class="text-xl sm:text-2xl font-bold text-slate-300 mt-4 mb-2">
+          Блюдо...
+        </h3>
+
+        <div class="py-6 px-4 my-4 bg-slate-800/60 rounded-xl border border-slate-700/50">
+          <p class="text-xs text-slate-400 mb-1">Входит ли этот ингредиент в состав?</p>
+          <p id="tf-ingredient-name" class="text-2xl sm:text-3xl font-extrabold text-amber-400">
+            Ингредиент...
+          </p>
+        </div>
+
+        <!-- Feedback -->
+        <div id="tf-feedback" class="hidden p-3 rounded-lg border mb-4 text-sm font-semibold"></div>
+
+        <!-- Buttons -->
+        <div id="tf-buttons" class="grid grid-cols-2 gap-4 mt-6">
+          <button onclick="answerTF(true)" class="py-4 bg-emerald-600/90 hover:bg-emerald-500 font-extrabold text-white text-lg rounded-xl transition shadow-lg flex items-center justify-center gap-2">
+            <span>✅</span> ДА
+          </button>
+          <button onclick="answerTF(false)" class="py-4 bg-rose-600/90 hover:bg-rose-500 font-extrabold text-white text-lg rounded-xl transition shadow-lg flex items-center justify-center gap-2">
+            <span>❌</span> НЕТ
+          </button>
+        </div>
+
+        <button id="tf-next-btn" onclick="nextTFQuestion()" class="hidden w-full mt-4 py-3.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 font-bold text-white rounded-xl transition">
+          Следующий вопрос ➔
+        </button>
+      </div>
+    </section>
+
+    <!-- VIEW 3: CHECKLIST MODE -->
+    <section id="view-checklist" class="hidden flex-1 flex flex-col">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 sm:p-7 shadow-xl">
+        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+          Выберите позицию из меню:
+        </label>
+        <select id="checklist-select" onchange="loadChecklistDish()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white font-semibold mb-6 focus:outline-none focus:border-brand-500">
+          <!-- Options dynamically loaded -->
+        </select>
+
+        <p class="text-xs text-slate-400 mb-3">
+          Отметьте ингредиенты, которые помните, а затем нажмите «Проверить себя»:
+        </p>
+
+        <!-- Pool of all possible common ingredients -->
+        <div id="checklist-ingredients-grid" class="flex flex-wrap gap-2 mb-6 max-h-[350px] overflow-y-auto p-1 custom-scrollbar">
+          <!-- Dynamic -->
+        </div>
+
+        <div id="checklist-result" class="hidden p-4 rounded-xl border mb-4 text-sm"></div>
+
+        <div class="flex gap-3">
+          <button onclick="checkChecklist()" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl transition">
+            Проверить себя
+          </button>
+          <button onclick="resetChecklist()" class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl transition">
+            Сброс
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: REFERENCE / CHEAT SHEET -->
+    <section id="view-reference" class="hidden flex-1">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-7 shadow-xl">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div>
+            <h2 class="text-2xl font-black text-white">Полное меню и составы</h2>
+            <p class="text-xs text-slate-400">21 позиция азиатской кухни для заучивания</p>
+          </div>
+          <input type="text" id="reference-search" oninput="filterReference()" placeholder="Поиск по блюду или ингредиенту..." class="w-full sm:w-64 bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+        </div>
+
+        <div id="reference-list" class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
+          <!-- Dynamic -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Mistake Review Drawer/Modal Button -->
+    <div class="mt-6 flex justify-between items-center text-xs text-slate-500">
+      <button onclick="showMistakesModal()" class="hover:text-amber-400 underline flex items-center gap-1">
+        ⚠️ Мои ошибки (<span id="mistakes-count">0</span>)
+      </button>
+      <button onclick="resetStats()" class="hover:text-rose-400 underline">
+        Сбросить статистику
+      </button>
+    </div>
+
+  </main>
+
+  <div id="mistakes-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <span>⚠️</span> Сложные позиции (Ошибки)
+        </h3>
+        <button onclick="hideMistakesModal()" class="text-slate-400 hover:text-white text-xl">✕</button>
+      </div>
+      <div id="mistakes-list" class="space-y-3 max-h-60 overflow-y-auto pr-1 custom-scrollbar text-xs">
+        <!-- Dynamic mistakes -->
+      </div>
+      <button onclick="hideMistakesModal()" class="w-full mt-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl text-xs">
+        Закрыть
+      </button>
+    </div>
+  </div>
+
+  <footer class="text-center py-3 border-t border-slate-800/60 text-[11px] text-slate-500">
+    Asian Kitchen Menu Trainer &bull; Обучающий игровой модуль
+  </footer>
+
+  <script>
+    // Database of dishes and ingredients
+    const MENU = [
+      {
+        id: 1,
+        name: "1. Салатная заправка",
+        ingredients: ["устричный соус", "соевый соус", "сахар", "белый рисовый уксус", "чеснок", "имбирь", "зеленый лук", "чили перец"],
+        notes: "Острая пряная заправка"
+      },
+      {
+        id: 2,
+        name: "2. Крылышки Сычуаньские",
+        ingredients: ["кочхуджан (качудян)", "томатная паста", "соевый соус"],
+        notes: "Паста кочхуджан задает пикантность"
+      },
+      {
+        id: 3,
+        name: "3. 5 специй (Усяньмянь)",
+        ingredients: ["бадьян", "сычуаньский перец", "корица", "имбирь", "кориандр"],
+        notes: "Смесь пряностей"
+      },
+      {
+        id: 4,
+        name: "4. Рисовый соус",
+        ingredients: ["кунжутное масло", "устричный соус"],
+        notes: "Простой базовый соус"
+      },
+      {
+        id: 5,
+        name: "5. Чоу-мейн (Соус)",
+        ingredients: ["соевый соус", "устричный соус", "темный соевый соус", "белый рисовый уксус", "кунжутное масло"],
+        notes: "Классический соус для лапши"
+      },
+      {
+        id: 6,
+        name: "6. Удон (Соус)",
+        ingredients: ["соевый соус", "устричный соус", "темный соевый соус", "белый рисовый уксус", "кунжутное масло"],
+        notes: "Соус точно такой же, как на Чоу-мейн"
+      },
+      {
+        id: 7,
+        name: "7. Кисло-сладкий соус",
+        ingredients: ["белый рисовый уксус", "сахар", "кетчуп", "соевый соус", "ананасовый сок"],
+        notes: "Основа на ананасовом соке и кетчупе"
+      },
+      {
+        id: 8,
+        name: "8. Гун бао соус",
+        ingredients: ["светлый соевый соус", "темный соевый соус", "сахар", "маласянь", "кунжутное масло", "белый рисовый уксус"],
+        notes: "Содержит приправу маласянь"
+      },
+      {
+        id: 9,
+        name: "9. Цзо соус (Генерала Цо)",
+        ingredients: ["сахар", "апельсиновый сок", "хойсин", "кетчуп", "светлый соевый соус", "темный соевый соус", "белый рисовый уксус"],
+        notes: "Содержит хойсин и апельсиновый сок"
+      },
+      {
+        id: 10,
+        name: "10. Апельсиновый соус",
+        ingredients: ["апельсиновый сок", "цедра апельсина", "апельсины", "кунжутное масло", "чеснок", "имбирь"],
+        notes: "Свежие апельсины + цедра"
+      },
+      {
+        id: 11,
+        name: "11. Свинина веревочкой (Юйсянь)",
+        ingredients: [
+          "свинина (маринад: соевый соус, вино)", "бамбук", "морковь", "основания зеленого лука", "чеснок", "имбирь", "древесные грибы муэр", 
+          "соус табадзян", "шаосинское вино", "соевый соус", "устричный соус"
+        ],
+        notes: "Свинина маринуется отдельно. Соус на основе табадзян."
+      },
+      {
+        id: 12,
+        name: "12. Хун шао соус",
+        ingredients: ["бадьян", "лавровый лист", "корица", "сычуаньский перец горошком", "черный перец горошком", "соевый соус", "темный соевый соус", "шаосинское вино"],
+        notes: "Пряный ароматный соус с цельными специями"
+      },
+      {
+        id: 13,
+        name: "13. Пекинская свинина",
+        ingredients: ["соус BBQ с хойсином, чесноком и имбирем", "свинина 150 г"],
+        notes: "Свинина 150 г"
+      },
+      {
+        id: 14,
+        name: "14. Говядина в ЧП (Черный перец)",
+        ingredients: ["морковь", "лук", "перец", "брокколи", "мини-кукуруза", "стручковая фасоль", "соус блэк пеппер"],
+        notes: "Овощной микс с соусом Блэк пеппер"
+      },
+      {
+        id: 15,
+        name: "15. Монгольская говядина",
+        ingredients: [
+          "говядина", "морковь", "болгарский перец", "репчатый лук", "сушеный чили перец", 
+          "соус чоу-мейн", "зеленый лук перо", "сахар", "шаосинское вино", "основания зеленого лука"
+        ],
+        notes: "Использует готовый соус чоу-мейн"
+      },
+      {
+        id: 16,
+        name: "16. Баранина",
+        ingredients: ["зира", "кинза", "фиолетовый лук", "соевый соус", "вино"],
+        notes: "Характерная приправа — зира и свежая кинза"
+      },
+      {
+        id: 17,
+        name: "17. Креветки в тайском стиле",
+        ingredients: ["листья лайма", "лемонграсс", "чеснок", "имбирь", "соус тайваньской чили пасты", "базилик", "соевый соус"],
+        notes: "Тайский аромат: лемонграсс + листья лайма + базилик"
+      },
+      {
+        id: 18,
+        name: "18. Баклажан со свининой",
+        ingredients: ["соус табадзян", "чеснок", "имбирь", "сахар", "шаосинское вино"],
+        notes: "Острая паста табадзян"
+      },
+      {
+        id: 19,
+        name: "19. Пикантный баклажан",
+        ingredients: ["темный соевый соус", "светлый соевый соус", "белый рисовый уксус", "сахар"],
+        notes: "Лаконичный кисло-сладко-соленый соус"
+      },
+      {
+        id: 20,
+        name: "20. Тофу по-домашнему",
+        ingredients: ["основания зеленого лука", "морковь", "болгарский перец", "грибы шиитаке", "грибы муэр", "соус юйсянь (табадзян, вино, соевый, устричный)"],
+        notes: "Соус такой же, как для 'Свинины веревочкой' (юйсянь)"
+      },
+      {
+        id: 21,
+        name: "21. Три земных свежести",
+        ingredients: ["приправа маласянь", "устричный соус", "сахар"],
+        notes: "Основа вкуса: маласянь и устричный соус"
+      }
+    ];
+
+    // Distractor ingredients pool for randomizing wrong options
+    const DISTRACTORS = [
+      "кунжут", "арахис", "крахмал кукурузный", "рыбный соус", "соус тонкацу", 
+      "майонез", "перцовое масло", "кокосовое молоко", "паста карри", "укроп", 
+      "куриный бульон", "паприка", "яблочный уксус", "соус терияки", "глутамат натрия"
+    ];
+
+    // App State Variables
+    let currentMode = 'quiz';
+    let streak = 0;
+    let scoreTotal = 0;
+    let scoreCorrect = 0;
+    let mistakes = {}; // dishId -> error count
+    let currentQuizDish = null;
+    let selectedQuizIngredients = new Set();
+    let currentTFDish = null;
+    let currentTFIngredient = "";
+    let isTFCorrectAnswer = false;
+
+    window.onload = function() {
+      loadStats();
+      setupChecklistSelect();
+      renderReferenceList();
+      nextQuizQuestion();
+      nextTFQuestion();
+      loadChecklistDish();
+    };
+
+    // View & Mode Switcher
+    function switchMode(mode) {
+      currentMode = mode;
+      document.getElementById('view-quiz').classList.add('hidden');
+      document.getElementById('view-tf').classList.add('hidden');
+      document.getElementById('view-checklist').classList.add('hidden');
+      document.getElementById('view-reference').classList.add('hidden');
+
+      // Reset Tab Highlights
+      ['quiz', 'tf', 'checklist'].forEach(m => {
+        const btn = document.getElementById(`tab-${m}`);
+        if(btn) {
+          btn.className = "py-2.5 px-3 rounded-lg text-center transition-all text-slate-400 hover:text-slate-200";
+        }
+      });
+
+      document.getElementById(`view-${mode}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`tab-${mode}`);
+      if(activeBtn) {
+        activeBtn.className = "py-2.5 px-3 rounded-lg text-center transition-all bg-brand-600 text-white shadow font-bold";
+      }
+    }
+
+    function switchView(viewName) {
+      if(viewName === 'reference') {
+        document.getElementById('view-quiz').classList.add('hidden');
+        document.getElementById('view-tf').classList.add('hidden');
+        document.getElementById('view-checklist').classList.add('hidden');
+        document.getElementById('view-reference').classList.remove('hidden');
+      }
+    }
+
+    function nextQuizQuestion(skipped = false) {
+      if(skipped) {
+        streak = 0;
+        updateStatsUI();
+      }
+
+      const feedback = document.getElementById('quiz-feedback');
+      feedback.className = "hidden p-4 rounded-xl border mb-4 text-sm font-medium";
+      document.getElementById('quiz-submit-btn').classList.remove('hidden');
+      document.getElementById('quiz-next-btn').classList.add('hidden');
+
+      // Select random dish
+      currentQuizDish = MENU[Math.floor(Math.random() * MENU.length)];
+      document.getElementById('quiz-dish-name').innerText = currentQuizDish.name;
+
+      selectedQuizIngredients.clear();
+
+      // Collect correct ingredients + distractors
+      const correctList = [...currentQuizDish.ingredients];
+      let pool = [...correctList];
+
+      // Add wrong ingredients from other dishes or distractors
+      while(pool.length < Math.max(correctList.length + 4, 8)) {
+        let otherDish = MENU[Math.floor(Math.random() * MENU.length)];
+        let randomIng = otherDish.ingredients[Math.floor(Math.random() * otherDish.ingredients.length)];
+        if(!pool.includes(randomIng)) {
+          pool.push(randomIng);
+        }
+        if(pool.length >= 10) break;
+      }
+
+      // Shuffle pool
+      pool.sort(() => Math.random() - 0.5);
+
+      // Render Chips
+      const container = document.getElementById('quiz-options-grid');
+      container.innerHTML = '';
+
+      pool.forEach(ing => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'px-3.5 py-2 rounded-xl border text-xs sm:text-sm font-medium transition-all bg-slate-800/80 border-slate-700 text-slate-300 hover:border-slate-500';
+        chip.innerText = ing;
+        chip.onclick = () => toggleQuizIngredient(chip, ing);
+        container.appendChild(chip);
+      });
+    }
+
+    function toggleQuizIngredient(chipBtn, ing) {
+      if(selectedQuizIngredients.has(ing)) {
+        selectedQuizIngredients.delete(ing);
+        chipBtn.className = 'px-3.5 py-2 rounded-xl border text-xs sm:text-sm font-medium transition-all bg-slate-800/80 border-slate-700 text-slate-300 hover:border-slate-500';
+      } else {
+        selectedQuizIngredients.add(ing);
+        chipBtn.className = 'px-3.5 py-2 rounded-xl border text-xs sm:text-sm font-semibold transition-all bg-brand-600/30 border-brand-500 text-brand-200 shadow-sm';
+      }
+    }
+
+    function checkQuizAnswer() {
+      if(selectedQuizIngredients.size === 0) {
+        alert("Пожалуйста, выберите хотя бы один ингредиент!");
+        return;
+      }
+
+      const correctSet = new Set(currentQuizDish.ingredients);
+      let isPerfect = true;
+
+      // Check if sizes match and all selected are correct
+      if(selectedQuizIngredients.size !== correctSet.size) {
+        isPerfect = false;
+      } else {
+        for(let item of selectedQuizIngredients) {
+          if(!correctSet.has(item)) {
+            isPerfect = false;
+            break;
+          }
+        }
+      }
+
+      scoreTotal++;
+      const feedback = document.getElementById('quiz-feedback');
+      feedback.classList.remove('hidden');
+
+      if(isPerfect) {
+        scoreCorrect++;
+        streak++;
+        feedback.className = "p-4 rounded-xl border border-emerald-500/50 bg-emerald-950/40 text-emerald-300 text-sm";
+        feedback.innerHTML = `<strong>✅ Отлично! Всё верно!</strong><br><span class="text-xs text-emerald-400/80">Особенность: ${currentQuizDish.notes}</span>`;
+      } else {
+        streak = 0;
+        recordMistake(currentQuizDish.id);
+        feedback.className = "p-4 rounded-xl border border-rose-500/50 bg-rose-950/40 text-rose-300 text-sm";
+        feedback.innerHTML = `
+          <strong>❌ Ошибка в составе!</strong><br>
+          <div class="mt-1.5 text-xs text-rose-200">
+            <strong>Правильный состав:</strong> ${currentQuizDish.ingredients.join(', ')}.
+          </div>
+        `;
+      }
+
+      updateStatsUI();
+      document.getElementById('quiz-submit-btn').classList.add('hidden');
+      document.getElementById('quiz-next-btn').classList.remove('hidden');
+    }
+
+    function nextTFQuestion() {
+      const feedback = document.getElementById('tf-feedback');
+      feedback.className = "hidden p-3 rounded-lg border mb-4 text-sm font-semibold";
+      document.getElementById('tf-buttons').classList.remove('hidden');
+      document.getElementById('tf-next-btn').classList.add('hidden');
+
+      currentTFDish = MENU[Math.floor(Math.random() * MENU.length)];
+      document.getElementById('tf-dish-title').innerText = currentTFDish.name;
+
+      // 50% chance to pick true ingredient vs distractor
+      isTFCorrectAnswer = Math.random() > 0.5;
+
+      if(isTFCorrectAnswer) {
+        currentTFIngredient = currentTFDish.ingredients[Math.floor(Math.random() * currentTFDish.ingredients.length)];
+      } else {
+        // Pick wrong ingredient
+        let otherDish = MENU.find(d => d.id !== currentTFDish.id);
+        let candidates = otherDish.ingredients.filter(i => !currentTFDish.ingredients.includes(i));
+        currentTFIngredient = candidates.length > 0 ? candidates[Math.floor(Math.random() * candidates.length)] : DISTRACTORS[0];
+      }
+
+      document.getElementById('tf-ingredient-name').innerText = currentTFIngredient;
+    }
+
+    function answerTF(userChoice) {
+      scoreTotal++;
+      const isCorrect = (userChoice === isTFCorrectAnswer);
+      const feedback = document.getElementById('tf-feedback');
+      feedback.classList.remove('hidden');
+
+      if(isCorrect) {
+        scoreCorrect++;
+        streak++;
+        feedback.className = "p-3 rounded-lg border border-emerald-500/50 bg-emerald-950/40 text-emerald-300 text-sm";
+        feedback.innerText = "✅ Верно! Отличная память.";
+      } else {
+        streak = 0;
+        recordMistake(currentTFDish.id);
+        feedback.className = "p-3 rounded-lg border border-rose-500/50 bg-rose-950/40 text-rose-300 text-sm";
+        feedback.innerText = `❌ Неверно! Для ${currentTFDish.name} правильный состав: ${currentTFDish.ingredients.join(', ')}`;
+      }
+
+      updateStatsUI();
+      document.getElementById('tf-buttons').classList.add('hidden');
+      document.getElementById('tf-next-btn').classList.remove('hidden');
+    }
+
+    function setupChecklistSelect() {
+      const select = document.getElementById('checklist-select');
+      select.innerHTML = '';
+      MENU.forEach(dish => {
+        const opt = document.createElement('option');
+        opt.value = dish.id;
+        opt.innerText = dish.name;
+        select.appendChild(opt);
+      });
+    }
+
+    let checklistSelectedSet = new Set();
+
+    function loadChecklistDish() {
+      checklistSelectedSet.clear();
+      document.getElementById('checklist-result').className = "hidden p-4 rounded-xl border mb-4 text-sm";
+      const dishId = parseInt(document.getElementById('checklist-select').value);
+      const dish = MENU.find(d => d.id === dishId);
+
+      // Collect all unique ingredients from whole menu
+      let allIngredients = new Set();
+      MENU.forEach(d => d.ingredients.forEach(i => allIngredients.add(i)));
+      let pool = Array.from(allIngredients).sort(() => Math.random() - 0.5);
+
+      const grid = document.getElementById('checklist-ingredients-grid');
+      grid.innerHTML = '';
+
+      pool.forEach(ing => {
+        const btn = document.createElement('button');
+        btn.className = "px-3 py-1.5 rounded-lg border text-xs font-medium bg-slate-800 border-slate-700 text-slate-300 transition hover:border-slate-500";
+        btn.innerText = ing;
+        btn.onclick = () => {
+          if(checklistSelectedSet.has(ing)) {
+            checklistSelectedSet.delete(ing);
+            btn.className = "px-3 py-1.5 rounded-lg border text-xs font-medium bg-slate-800 border-slate-700 text-slate-300 transition hover:border-slate-500";
+          } else {
+            checklistSelectedSet.add(ing);
+            btn.className = "px-3 py-1.5 rounded-lg border text-xs font-semibold bg-brand-600/30 border-brand-500 text-brand-200 transition";
+          }
+        };
+        grid.appendChild(btn);
+      });
+    }
+
+    function checkChecklist() {
+      const dishId = parseInt(document.getElementById('checklist-select').value);
+      const dish = MENU.find(d => d.id === dishId);
+      const targetSet = new Set(dish.ingredients);
+
+      let correctCount = 0;
+      let wrongCount = 0;
+
+      checklistSelectedSet.forEach(ing => {
+        if(targetSet.has(ing)) correctCount++;
+        else wrongCount++;
+      });
+
+      const missingCount = targetSet.size - correctCount;
+      const res = document.getElementById('checklist-result');
+      res.classList.remove('hidden');
+
+      if(correctCount === targetSet.size && wrongCount === 0) {
+        res.className = "p-4 rounded-xl border border-emerald-500/50 bg-emerald-950/40 text-emerald-300 text-sm";
+        res.innerHTML = `🎉 <strong>Идеально!</strong> Вы точно помните весь состав ${dish.name}!`;
+      } else {
+        res.className = "p-4 rounded-xl border border-amber-500/50 bg-amber-950/40 text-amber-200 text-sm";
+        res.innerHTML = `
+          <strong>Результат:</strong> Найдено ${correctCount} из ${targetSet.size}. Лишних: ${wrongCount}. Пропущено: ${missingCount}.<br>
+          <div class="mt-2 text-xs text-amber-300">
+            <strong>Полный рецепт:</strong> ${dish.ingredients.join(', ')}
+          </div>
+        `;
+      }
+    }
+
+    function resetChecklist() {
+      loadChecklistDish();
+    }
+
+    function renderReferenceList(filterText = '') {
+      const container = document.getElementById('reference-list');
+      container.innerHTML = '';
+
+      const filtered = MENU.filter(dish => {
+        const text = (dish.name + ' ' + dish.ingredients.join(' ') + ' ' + dish.notes).toLowerCase();
+        return text.includes(filterText.toLowerCase());
+      });
+
+      if(filtered.length === 0) {
+        container.innerHTML = `<div class="col-span-full text-center py-8 text-slate-500 text-sm">Ничего не найдено</div>`;
+        return;
+      }
+
+      filtered.forEach(dish => {
+        const card = document.createElement('div');
+        card.className = "p-4 bg-slate-800/60 border border-slate-700/60 rounded-xl hover:border-slate-600 transition";
+        card.innerHTML = `
+          <h4 class="font-bold text-white text-base mb-1.5 flex justify-between items-center">
+            <span>${dish.name}</span>
+            <span class="text-[10px] font-normal px-2 py-0.5 rounded bg-slate-700 text-slate-300">#${dish.id}</span>
+          </h4>
+          <p class="text-xs text-brand-300 font-medium mb-2">${dish.ingredients.join(' • ')}</p>
+          <p class="text-[11px] text-slate-400 italic">💡 ${dish.notes}</p>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function filterReference() {
+      const val = document.getElementById('reference-search').value;
+      renderReferenceList(val);
+    }
+
+    function recordMistake(dishId) {
+      mistakes[dishId] = (mistakes[dishId] || 0) + 1;
+      saveStats();
+      updateMistakesUI();
+    }
+
+    function updateStatsUI() {
+      document.getElementById('streak-counter').innerText = streak;
+      document.getElementById('score-counter').innerText = `${scoreCorrect}/${scoreTotal}`;
+      saveStats();
+    }
+
+    function updateMistakesUI() {
+      const count = Object.keys(mistakes).length;
+      document.getElementById('mistakes-count').innerText = count;
+
+      const list = document.getElementById('mistakes-list');
+      list.innerHTML = '';
+
+      if(count === 0) {
+        list.innerHTML = `<div class="text-center py-4 text-slate-500">У вас пока нет зарегистрированных ошибок! 🎉</div>`;
+        return;
+      }
+
+      Object.keys(mistakes).forEach(idStr => {
+        const id = parseInt(idStr);
+        const dish = MENU.find(d => d.id === id);
+        if(dish) {
+          const item = document.createElement('div');
+          item.className = "p-3 bg-slate-800 rounded-lg border border-slate-700 flex justify-between items-start";
+          item.innerHTML = `
+            <div>
+              <div class="font-bold text-white">${dish.name}</div>
+              <div class="text-[11px] text-slate-400 mt-0.5">${dish.ingredients.join(', ')}</div>
+            </div>
+            <span class="bg-rose-900/60 text-rose-300 px-2 py-0.5 rounded font-bold text-[10px] border border-rose-700">
+              ${mistakes[id]} ош.
+            </span>
+          `;
+          list.appendChild(item);
+        }
+      });
+    }
+
+    function showMistakesModal() {
+      updateMistakesUI();
+      document.getElementById('mistakes-modal').classList.remove('hidden');
+    }
+
+    function hideMistakesModal() {
+      document.getElementById('mistakes-modal').classList.add('hidden');
+    }
+
+    function saveStats() {
+      localStorage.setItem('asian_trainer_streak', streak);
+      localStorage.setItem('asian_trainer_scoreTotal', scoreTotal);
+      localStorage.setItem('asian_trainer_scoreCorrect', scoreCorrect);
+      localStorage.setItem('asian_trainer_mistakes', JSON.stringify(mistakes));
+    }
+
+    function loadStats() {
+      streak = parseInt(localStorage.getItem('asian_trainer_streak')) || 0;
+      scoreTotal = parseInt(localStorage.getItem('asian_trainer_scoreTotal')) || 0;
+      scoreCorrect = parseInt(localStorage.getItem('asian_trainer_scoreCorrect')) || 0;
+      try {
+        mistakes = JSON.parse(localStorage.getItem('asian_trainer_mistakes')) || {};
+      } catch(e) {
+        mistakes = {};
+      }
+      updateStatsUI();
+      updateMistakesUI();
+    }
+
+    function resetStats() {
+      if(confirm("Вы уверены, что хотите сбросить всю статистику и ошибки?")) {
+        streak = 0;
+        scoreTotal = 0;
+        scoreCorrect = 0;
+        mistakes = {};
+        saveStats();
+        updateStatsUI();
+        updateMistakesUI();
+      }
+    }
+  </script>
+</body>
+</html>
