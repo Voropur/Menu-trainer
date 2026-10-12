@@ -15,7 +15,6 @@
             --bg-color: #121214;
             --card-bg: #1e1e24;
             --accent: #ff4757;
-            --accent-hover: #ff6b81;
             --green: #2ed573;
             --red: #ff4757;
             --text: #f1f2f6;
@@ -54,10 +53,6 @@
         h1 {
             font-size: 1.2rem;
             color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
         }
 
         .stats-bar {
@@ -68,7 +63,7 @@
             margin: 15px;
             border-radius: 12px;
             border: 1px solid var(--border);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         .stat-item span {
@@ -79,20 +74,21 @@
         .nav-tabs {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 6px;
             margin: 0 15px 15px 15px;
+            overflow-x: auto;
         }
 
         .tab-btn {
             background: var(--card-bg);
             border: 1px solid var(--border);
             color: var(--text-dim);
-            padding: 10px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
+            padding: 8px 12px;
+            border-radius: 16px;
+            font-size: 0.8rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            white-space: nowrap;
             flex: 1;
             text-align: center;
         }
@@ -120,7 +116,7 @@
         }
 
         .dish-title {
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             margin-bottom: 15px;
             text-align: center;
             color: #fff;
@@ -142,7 +138,6 @@
             font-size: 0.85rem;
             cursor: pointer;
             text-align: center;
-            transition: all 0.15s;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -167,6 +162,38 @@
             border-color: var(--red) !important;
         }
 
+        .tf-question {
+            font-size: 1.1rem;
+            text-align: center;
+            margin: 20px 0;
+            line-height: 1.5;
+        }
+
+        .tf-question highlight {
+            color: #eccc68;
+            font-weight: bold;
+        }
+
+        .tf-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .tf-btn {
+            flex: 1;
+            padding: 15px;
+            border-radius: 12px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+        }
+
+        .tf-btn.yes { background: var(--green); color: #000; }
+        .tf-btn.no { background: var(--red); }
+
         .action-btn {
             width: 100%;
             background: var(--accent);
@@ -177,15 +204,9 @@
             font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
-            transition: background 0.2s;
         }
 
-        .action-btn:active {
-            transform: scale(0.98);
-        }
-
-        /* Поисковик и справочник */
-        .search-input {
+        .search-input, .select-input {
             width: 100%;
             padding: 12px 15px;
             background: var(--card-bg);
@@ -216,7 +237,6 @@
             line-height: 1.4;
         }
 
-        /* Переключатель режимов */
         .mode-switch {
             display: flex;
             gap: 10px;
@@ -241,6 +261,12 @@
         }
 
         .hidden { display: none !important; }
+        .feedback {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
@@ -256,34 +282,61 @@
     </div>
 
     <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab('game')">🎮 Игра</button>
-        <button class="tab-btn" onclick="switchTab('dict')">📖 Меню (21)</button>
+        <button class="tab-btn active" onclick="switchMode('build', this)">🎮 Сбор</button>
+        <button class="tab-btn" onclick="switchMode('tf', this)">⚡ Правда/Ложь</button>
+        <button class="tab-btn" onclick="switchMode('checklist', this)">✅ Чек-лист</button>
+        <button class="tab-btn" onclick="switchMode('dict', this)">📖 Меню</button>
     </div>
 
     <div class="container">
-        <!-- Вкладка игры -->
-        <div id="game-tab">
+        
+        <!-- РЕЖИМ 1: СБОР СОСТАВА -->
+        <div id="mode-build">
             <div class="mode-switch">
-                <button class="mode-btn active" onclick="setGameMode('all', this)">Все блюда</button>
-                <button class="mode-btn" onclick="setGameMode('errors', this)">Только ошибки (<span id="err-badge">0</span>)</button>
+                <button class="mode-btn active" onclick="setPool('all', this)">Все блюда</button>
+                <button class="mode-btn" onclick="setPool('errors', this)">Только ошибки (<span id="err-badge">0</span>)</button>
             </div>
 
             <div class="card">
-                <div class="dish-title" id="dish-name">Загрузка...</div>
-                <div class="ingredients-grid" id="ingredients-container"></div>
-                <button class="action-btn" id="check-btn" onclick="checkAnswer()">Проверить</button>
+                <div class="dish-title" id="build-dish-name">Загрузка...</div>
+                <div class="ingredients-grid" id="build-ingredients"></div>
+                <button class="action-btn" id="build-check-btn" onclick="checkBuild()">Проверить</button>
             </div>
         </div>
 
-        <!-- Вкладка справочника -->
-        <div id="dict-tab" class="hidden">
+        <!-- РЕЖИМ 2: ПРАВДА ИЛИ ЛОЖЬ -->
+        <div id="mode-tf" class="hidden">
+            <div class="card">
+                <div class="dish-title" id="tf-dish-name">Загрузка...</div>
+                <div class="tf-question" id="tf-question-text">...</div>
+                <div class="tf-buttons" id="tf-actions">
+                    <button class="tf-btn yes" onclick="answerTF(true)">ДА</button>
+                    <button class="tf-btn no" onclick="answerTF(false)">НЕТ</button>
+                </div>
+                <div class="feedback hidden" id="tf-feedback"></div>
+                <button class="action-btn hidden" id="tf-next-btn" style="margin-top:15px" onclick="nextTF()">Следующий вопрос ➔</button>
+            </div>
+        </div>
+
+        <!-- РЕЖИМ 3: ЧЕК-ЛИСТ -->
+        <div id="mode-checklist" class="hidden">
+            <div class="card">
+                <label style="font-size:0.85rem; color:var(--text-dim); display:block; margin-bottom:5px;">Выберите блюдо для самопроверки:</label>
+                <select class="select-input" id="checklist-select" onchange="loadChecklist()"></select>
+                <div class="ingredients-grid" id="checklist-grid"></div>
+                <button class="action-btn" onclick="revealChecklist()">Показать верный состав</button>
+            </div>
+        </div>
+
+        <!-- ВКЛАДКА: СПРАВОЧНИК -->
+        <div id="mode-dict" class="hidden">
             <input type="text" class="search-input" id="search-bar" placeholder="Поиск блюда или ингредиента..." oninput="filterDict()">
             <div id="dict-list"></div>
         </div>
+
     </div>
 
     <script>
-        // БАЗА ДАННЫХ МЕНЮ
         const menuData = [
             { id: 1, name: "Салатная заправка", ingredients: ["Устричный соус", "Соевый соус", "Сахар", "Белый рисовый уксус", "Чеснок", "Имбирь", "Зеленый лук", "Чили перец"] },
             { id: 2, name: "Крылышки Сычуаньские", ingredients: ["Качудян", "Томатная паста", "Соевый соус"] },
@@ -308,200 +361,259 @@
             { id: 21, name: "Три земных свежести", ingredients: ["Картофель/Перец/Баклажан", "Соус маласянь", "Устричный соус", "Сахар"] }
         ];
 
-        // Собираем полный список всех уникальных ингредиентов для формирования ложных вариантов
         const allIngredients = Array.from(new Set(menuData.flatMap(d => d.ingredients)));
 
-        // Состояние приложения
         let currentDish = null;
-        let selectedIngredients = new Set();
-        let currentOptions = [];
+        let selectedIngs = new Set();
         let streak = 0;
         let maxStreak = localStorage.getItem('maxStreak') || 0;
         let errorList = JSON.parse(localStorage.getItem('errorList')) || [];
-        let gameMode = 'all'; // 'all' или 'errors'
+        let poolType = 'all';
         let isChecked = false;
+        let tfCurrent = {};
 
         document.getElementById('max-streak').textContent = maxStreak;
 
-        // Инициализация
         function init() {
-            updateErrorStats();
+            updateStats();
             renderDict();
-            nextQuestion();
+            initChecklistSelect();
+            nextBuild();
+            nextTF();
         }
 
-        function setGameMode(mode, btn) {
-            if (mode === 'errors' && errorList.length === 0) {
-                alert("У вас пока нет ошибочных блюд! Сыграйте в общий режим.");
+        // Переключение режимов
+        function switchMode(mode, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            ['build', 'tf', 'checklist', 'dict'].forEach(m => {
+                document.getElementById('mode-' + m).classList.add('hidden');
+            });
+            document.getElementById('mode-' + mode).classList.remove('hidden');
+        }
+
+        function setPool(type, btn) {
+            if (type === 'errors' && errorList.length === 0) {
+                alert("У вас пока нет ошибок!");
                 return;
             }
-            gameMode = mode;
+            poolType = type;
             document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            nextQuestion();
+            nextBuild();
         }
 
-        function nextQuestion() {
+        // --- РЕЖИМ 1: СБОР СОСТАВА ---
+        function nextBuild() {
             isChecked = false;
-            selectedIngredients.clear();
+            selectedIngs.clear();
             
             let pool = menuData;
-            if (gameMode === 'errors' && errorList.length > 0) {
+            if (poolType === 'errors' && errorList.length > 0) {
                 pool = menuData.filter(d => errorList.includes(d.id));
             }
 
             currentDish = pool[Math.floor(Math.random() * pool.length)];
-            document.getElementById('dish-name').textContent = currentDish.name;
+            document.getElementById('build-dish-name').textContent = currentDish.name;
 
-            // Формируем варианты (правильные + случайные фейковые)
             const correct = currentDish.ingredients;
             const wrongCandidates = allIngredients.filter(i => !correct.includes(i));
-            
-            // Берем от 3 до 5 случайных неправильных
-            const wrongCount = Math.min(4, wrongCandidates.length);
-            const wrong = wrongCandidates.sort(() => 0.5 - Math.random()).slice(0, wrongCount);
+            const wrong = wrongCandidates.sort(() => 0.5 - Math.random()).slice(0, Math.min(4, wrongCandidates.length));
+            const options = [...correct, ...wrong].sort(() => 0.5 - Math.random());
 
-            currentOptions = [...correct, ...wrong].sort(() => 0.5 - Math.random());
-
-            const container = document.getElementById('ingredients-container');
+            const container = document.getElementById('build-ingredients');
             container.innerHTML = '';
             
-            currentOptions.forEach((ing, index) => {
+            options.forEach(ing => {
                 const btn = document.createElement('button');
                 btn.className = 'ing-btn';
                 btn.textContent = ing;
-                btn.onclick = () => toggleIngredient(ing, btn);
+                btn.onclick = () => {
+                    if (isChecked) return;
+                    if (selectedIngs.has(ing)) {
+                        selectedIngs.delete(ing);
+                        btn.classList.remove('selected');
+                    } else {
+                        selectedIngs.add(ing);
+                        btn.classList.add('selected');
+                    }
+                };
                 container.appendChild(btn);
             });
 
-            const checkBtn = document.getElementById('check-btn');
+            const checkBtn = document.getElementById('build-check-btn');
             checkBtn.textContent = 'Проверить';
-            checkBtn.onclick = checkAnswer;
             checkBtn.style.background = 'var(--accent)';
         }
 
-        function toggleIngredient(ing, btn) {
-            if (isChecked) return;
-            
-            if (selectedIngredients.has(ing)) {
-                selectedIngredients.delete(ing);
-                btn.classList.remove('selected');
-            } else {
-                selectedIngredients.add(ing);
-                btn.classList.add('selected');
-            }
-        }
-
-        function checkAnswer() {
+        function checkBuild() {
             if (isChecked) {
-                nextQuestion();
+                nextBuild();
                 return;
             }
-
-            if (selectedIngredients.size === 0) {
+            if (selectedIngs.size === 0) {
                 alert("Выберите хотя бы один ингредиент!");
                 return;
             }
 
             isChecked = true;
             const correctSet = new Set(currentDish.ingredients);
-            let isCorrect = true;
-
-            // Проверяем полноту и точность выбора
-            if (selectedIngredients.size !== correctSet.size) {
-                isCorrect = false;
-            } else {
-                for (let item of selectedIngredients) {
-                    if (!correctSet.has(item)) {
-                        isCorrect = false;
-                        break;
-                    }
+            let isCorrect = (selectedIngs.size === correctSet.size);
+            
+            if (isCorrect) {
+                for (let item of selectedIngs) {
+                    if (!correctSet.has(item)) { isCorrect = false; break; }
                 }
             }
 
-            // Подсветка кнопок
-            const btns = document.querySelectorAll('.ing-btn');
-            btns.forEach(btn => {
+            document.querySelectorAll('#build-ingredients .ing-btn').forEach(btn => {
                 const text = btn.textContent;
-                const isSelected = selectedIngredients.has(text);
-                const isTarget = correctSet.has(text);
+                if (correctSet.has(text)) btn.classList.add('correct');
+                else if (selectedIngs.has(text)) btn.classList.add('wrong');
+            });
 
-                if (isTarget) {
+            handleResult(isCorrect, currentDish.id);
+            const checkBtn = document.getElementById('build-check-btn');
+            checkBtn.textContent = 'Следующее блюдо ➔';
+            checkBtn.style.background = isCorrect ? 'var(--green)' : 'var(--red)';
+        }
+
+        // --- РЕЖИМ 2: ПРАВДА / ЛОЖЬ ---
+        function nextTF() {
+            document.getElementById('tf-actions').classList.remove('hidden');
+            document.getElementById('tf-feedback').classList.add('hidden');
+            document.getElementById('tf-next-btn').classList.add('hidden');
+
+            const dish = menuData[Math.floor(Math.random() * menuData.length)];
+            const shouldBeTrue = Math.random() > 0.5;
+            let ingredient = '';
+
+            if (shouldBeTrue) {
+                ingredient = dish.ingredients[Math.floor(Math.random() * dish.ingredients.length)];
+            } else {
+                const wrongList = allIngredients.filter(i => !dish.ingredients.includes(i));
+                ingredient = wrongList[Math.floor(Math.random() * wrongList.length)];
+            }
+
+            tfCurrent = { dish, ingredient, isTrue: shouldBeTrue };
+
+            document.getElementById('tf-dish-name').textContent = dish.name;
+            document.getElementById('tf-question-text').innerHTML = `Входит ли <highlight>"${ingredient}"</highlight> в состав?`;
+        }
+
+        function answerTF(userAnswer) {
+            const isCorrect = (userAnswer === tfCurrent.isTrue);
+            document.getElementById('tf-actions').classList.add('hidden');
+            
+            const feedback = document.getElementById('tf-feedback');
+            feedback.classList.remove('hidden');
+            
+            if (isCorrect) {
+                feedback.textContent = "Правильно! 🎉";
+                feedback.style.color = "var(--green)";
+            } else {
+                feedback.textContent = tfCurrent.isTrue 
+                    ? `Ошибка! "${tfCurrent.ingredient}" ДЕЙСТВИТЕЛЬНО входит в состав.` 
+                    : `Ошибка! "${tfCurrent.ingredient}" НЕ входит в состав.`;
+                feedback.style.color = "var(--red)";
+            }
+
+            handleResult(isCorrect, tfCurrent.dish.id);
+            document.getElementById('tf-next-btn').classList.remove('hidden');
+        }
+
+        // --- РЕЖИМ 3: ЧЕК-ЛИСТ ---
+        function initChecklistSelect() {
+            const select = document.getElementById('checklist-select');
+            select.innerHTML = '';
+            menuData.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d.id;
+                opt.textContent = `${d.id}. ${d.name}`;
+                select.appendChild(opt);
+            });
+            loadChecklist();
+        }
+
+        function loadChecklist() {
+            const id = parseInt(document.getElementById('checklist-select').value);
+            const dish = menuData.find(d => d.id === id);
+            const container = document.getElementById('checklist-grid');
+            container.innerHTML = '';
+
+            // Перемешиваем варианты для самопроверки
+            const wrongCandidates = allIngredients.filter(i => !dish.ingredients.includes(i));
+            const wrong = wrongCandidates.sort(() => 0.5 - Math.random()).slice(0, 4);
+            const options = [...dish.ingredients, ...wrong].sort(() => 0.5 - Math.random());
+
+            options.forEach(ing => {
+                const btn = document.createElement('button');
+                btn.className = 'ing-btn';
+                btn.textContent = ing;
+                btn.onclick = () => btn.classList.toggle('selected');
+                container.appendChild(btn);
+            });
+        }
+
+        function revealChecklist() {
+            const id = parseInt(document.getElementById('checklist-select').value);
+            const dish = menuData.find(d => d.id === id);
+            const correctSet = new Set(dish.ingredients);
+
+            document.querySelectorAll('#checklist-grid .ing-btn').forEach(btn => {
+                if (correctSet.has(btn.textContent)) {
                     btn.classList.add('correct');
-                } else if (isSelected && !isTarget) {
+                } else if (btn.classList.contains('selected')) {
                     btn.classList.add('wrong');
                 }
             });
+        }
 
+        // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
+        function handleResult(isCorrect, dishId) {
             if (isCorrect) {
                 streak++;
                 if (streak > maxStreak) {
                     maxStreak = streak;
                     localStorage.setItem('maxStreak', maxStreak);
-                    document.getElementById('max-streak').textContent = maxStreak;
                 }
-                // Если верно, удаляем из списка ошибок
-                errorList = errorList.filter(id => id !== currentDish.id);
+                errorList = errorList.filter(id => id !== dishId);
             } else {
                 streak = 0;
-                if (!errorList.includes(currentDish.id)) {
-                    errorList.push(currentDish.id);
-                }
+                if (!errorList.includes(dishId)) errorList.push(dishId);
             }
-
             localStorage.setItem('errorList', JSON.stringify(errorList));
-            document.getElementById('streak').textContent = streak;
-            updateErrorStats();
-
-            const checkBtn = document.getElementById('check-btn');
-            checkBtn.textContent = 'Следующее блюдо ➔';
-            checkBtn.style.background = isCorrect ? 'var(--green)' : 'var(--red)';
+            updateStats();
         }
 
-        function updateErrorStats() {
+        function updateStats() {
+            document.getElementById('streak').textContent = streak;
+            document.getElementById('max-streak').textContent = maxStreak;
             document.getElementById('errors-count').textContent = errorList.length;
             document.getElementById('err-badge').textContent = errorList.length;
-        }
-
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            if (tab === 'game') {
-                document.getElementById('game-tab').classList.remove('hidden');
-                document.getElementById('dict-tab').classList.add('hidden');
-                event.target.classList.add('active');
-            } else {
-                document.getElementById('game-tab').classList.add('hidden');
-                document.getElementById('dict-tab').classList.remove('hidden');
-                event.target.classList.add('active');
-            }
         }
 
         function renderDict(filter = '') {
             const container = document.getElementById('dict-list');
             container.innerHTML = '';
-            
             const filtered = menuData.filter(d => 
                 d.name.toLowerCase().includes(filter.toLowerCase()) || 
                 d.ingredients.some(i => i.toLowerCase().includes(filter.toLowerCase()))
             );
-
             filtered.forEach(d => {
                 const item = document.createElement('div');
                 item.className = 'dict-item';
-                item.innerHTML = `
-                    <h3>${d.id}. ${d.name}</h3>
-                    <p><b>Состав:</b> ${d.ingredients.join(', ')}</p>
-                `;
+                item.innerHTML = `<h3>${d.id}. ${d.name}</h3><p><b>Состав:</b> ${d.ingredients.join(', ')}</p>`;
                 container.appendChild(item);
             });
         }
 
         function filterDict() {
-            const text = document.getElementById('search-bar').value;
-            renderDict(text);
+            renderDict(document.getElementById('search-bar').value);
         }
 
-        // Авто-регистрация сервиса для полной офлайн-работы
+        // Автономный Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 const blob = new Blob([`
@@ -509,8 +621,7 @@
                     self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
                     self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => new Response('Offline'))));
                 `], { type: 'text/javascript' });
-                const url = URL.createObjectURL(blob);
-                navigator.serviceWorker.register(url).catch(() => {});
+                navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
             });
         }
 
