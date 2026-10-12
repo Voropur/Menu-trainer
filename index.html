@@ -3,23 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Тренажёр Меню</title>
-    <meta name="theme-color" content="#1a1a2e">
+    <title>ProMenu Master</title>
+    <meta name="theme-color" content="#0b101b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Меню-Тренер">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍜</text></svg>">
-    <link rel="manifest" href='data:application/json,{"name":"Тренажёр Меню","short_name":"МенюТренер","start_url":".","display":"standalone","background_color":"#121212","theme_color":"#1a1a2e","icons":[{"src":"data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><text y=\".9em\" font-size=\"90\">🍜</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}'>
+    <meta name="apple-mobile-web-app-title" content="ProMenu">
     <style>
         :root {
-            --bg-color: #121214;
-            --card-bg: #1e1e24;
-            --accent: #ff4757;
+            --bg-dark: #070a12;
+            --card-bg: #0e1424;
+            --card-border: #1a233b;
+            --accent-pink: #ff2a55;
+            --accent-pink-hover: #e02248;
+            --chip-bg: #151d30;
+            --chip-border: #232f4d;
+            --chip-selected-bg: #4a1122;
+            --chip-selected-border: #ff2a55;
             --green: #2ed573;
-            --red: #ff4757;
-            --text: #f1f2f6;
-            --text-dim: #a4b0be;
-            --border: #2f3542;
+            --text-main: #f0f4f8;
+            --text-sub: #7a8b9e;
         }
 
         * {
@@ -31,136 +33,313 @@
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text);
+            background-color: var(--bg-dark);
+            color: var(--text-main);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            padding-bottom: 30px;
-        }
-
-        header {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            padding: 15px 20px;
-            text-align: center;
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-
-        h1 {
-            font-size: 1.2rem;
-            color: #fff;
-        }
-
-        .stats-bar {
-            display: flex;
-            justify-content: space-around;
-            background: var(--card-bg);
-            padding: 10px;
-            margin: 15px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            font-size: 0.85rem;
-        }
-
-        .stat-item span {
-            font-weight: bold;
-            color: var(--accent);
-        }
-
-        .nav-tabs {
-            display: flex;
-            justify-content: flex-start;
-            gap: 6px;
-            margin: 0 15px 15px 15px;
-            overflow-x: auto;
-            padding-bottom: 5px;
-        }
-
-        .tab-btn {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            color: var(--text-dim);
-            padding: 8px 12px;
-            border-radius: 16px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
-            flex-shrink: 0;
-            text-align: center;
-        }
-
-        .tab-btn.active {
-            background: var(--accent);
-            color: white;
-            border-color: var(--accent);
-        }
-
-        .container {
-            padding: 0 15px;
-            max-width: 600px;
+            padding: 15px;
+            max-width: 500px;
             margin: 0 auto;
-            width: 100%;
         }
 
-        .card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid var(--border);
-            margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-
-        .dish-title {
-            font-size: 1.25rem;
-            margin-bottom: 15px;
-            text-align: center;
-            color: #fff;
-        }
-
-        .ingredients-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 10px;
+        /* Шапка приложения */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             margin-bottom: 20px;
+            padding-top: 10px;
         }
 
-        .ing-btn {
-            background: #252530;
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 12px 8px;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            text-align: center;
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .app-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 48px;
+            font-size: 22px;
+            box-shadow: 0 4px 12px rgba(255, 126, 95, 0.3);
         }
 
-        .ing-btn.selected {
-            background: #3b3b4f;
-            border-color: #58587a;
+        .app-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.2;
         }
 
-        .ing-btn.correct {
-            background: var(--green) !important;
-            color: #000 !important;
-            font-weight: bold;
+        .app-subtitle {
+            font-size: 0.78rem;
+            color: #e2a03f;
+            margin-top: 2px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .streak-pill {
+            background: #111a2e;
+            border: 1px solid #1f2d4d;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #38ef7d;
+        }
+
+        .streak-pill span {
+            color: #7a8b9e;
+        }
+
+        .dict-icon-btn {
+            background: #111a2e;
+            border: 1px solid #1f2d4d;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        /* Панель режимов */
+        .modes-nav {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 6px;
+            display: flex;
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+
+        .mode-tab {
+            flex: 1;
+            padding: 10px 6px;
+            border-radius: 12px;
+            border: none;
+            background: transparent;
+            color: var(--text-sub);
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            line-height: 1.3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        .mode-tab.active {
+            background: var(--accent-pink);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(255, 42, 85, 0.4);
+        }
+
+        /* Главная карточка вопроса */
+        .question-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 22px 18px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .card-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .question-badge {
+            background: #2a1220;
+            color: var(--accent-pink);
+            border: 1px solid #4d1832;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .skip-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            font-size: 0.82rem;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .dish-header {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .question-desc {
+            font-size: 0.88rem;
+            color: var(--text-sub);
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .question-desc b {
+            color: #fff;
+        }
+
+        /* Варианты ингредиентов (Чипсы) */
+        .chips-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 25px;
+            justify-content: flex-start;
+        }
+
+        .chip {
+            background: var(--chip-bg);
+            border: 1px solid var(--chip-border);
+            color: var(--text-main);
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+
+        .chip.selected {
+            background: var(--chip-selected-bg);
+            border-color: var(--chip-selected-border);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(255, 42, 85, 0.2);
+        }
+
+        .chip.correct {
+            background: #0f3822 !important;
             border-color: var(--green) !important;
+            color: #fff !important;
         }
 
-        .ing-btn.wrong {
-            background: var(--red) !important;
-            color: white !important;
-            border-color: var(--red) !important;
+        .chip.wrong {
+            background: #4a1122 !important;
+            border-color: var(--accent-pink) !important;
+            color: #fff !important;
+            text-decoration: line-through;
+        }
+
+        /* Кнопка действия */
+        .primary-btn {
+            width: 100%;
+            background: var(--accent-pink);
+            color: #fff;
+            border: none;
+            padding: 15px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 4px 15px rgba(255, 42, 85, 0.3);
+        }
+
+        .primary-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Нижние ссылки управления */
+        .bottom-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 5px;
+            font-size: 0.82rem;
+            margin-bottom: 30px;
+        }
+
+        .errors-link {
+            color: #f39c12;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .reset-link {
+            color: var(--text-sub);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 0.72rem;
+            color: #3e4e66;
+            margin-top: auto;
+            padding-bottom: 10px;
+        }
+
+        /* Модалка / Вкладка справочника и редактора */
+        .overlay-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .search-input, .text-input, .select-input {
+            width: 100%;
+            padding: 12px 14px;
+            background: #131a2b;
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.88rem;
+            margin-bottom: 12px;
+        }
+
+        .dict-item {
+            background: #111726;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            border: 1px solid var(--card-border);
+        }
+
+        .dict-item h4 {
+            color: var(--accent-pink);
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        .dict-item p {
+            color: var(--text-sub);
+            font-size: 0.82rem;
+            line-height: 1.4;
         }
 
         .tf-question {
@@ -177,390 +356,275 @@
 
         .tf-buttons {
             display: flex;
-            gap: 15px;
-            margin-top: 20px;
+            gap: 12px;
+            margin-top: 15px;
         }
 
         .tf-btn {
             flex: 1;
-            padding: 15px;
+            padding: 14px;
             border-radius: 12px;
             border: none;
-            font-size: 1.1rem;
             font-weight: bold;
+            font-size: 1rem;
             cursor: pointer;
-            color: white;
         }
 
         .tf-btn.yes { background: var(--green); color: #000; }
-        .tf-btn.no { background: var(--red); }
-
-        .action-btn {
-            width: 100%;
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .search-input, .select-input, .text-input {
-            width: 100%;
-            padding: 12px 15px;
-            background: #252530;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: white;
-            font-size: 0.95rem;
-            margin-bottom: 12px;
-        }
-
-        .dict-item {
-            background: var(--card-bg);
-            border-radius: 10px;
-            padding: 12px 15px;
-            margin-bottom: 10px;
-            border: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .dict-item-info { flex: 1; }
-
-        .dict-item h3 {
-            font-size: 1rem;
-            color: var(--accent);
-            margin-bottom: 5px;
-        }
-
-        .dict-item p {
-            font-size: 0.85rem;
-            color: var(--text-dim);
-            line-height: 1.4;
-        }
-
-        .del-btn {
-            background: #ff475722;
-            color: var(--red);
-            border: 1px solid var(--red);
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-
-        .mode-switch {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .mode-btn {
-            flex: 1;
-            padding: 8px;
-            background: #252530;
-            border: 1px solid var(--border);
-            color: var(--text-dim);
-            border-radius: 8px;
-            font-size: 0.8rem;
-            cursor: pointer;
-        }
-
-        .mode-btn.active {
-            background: #3b3b4f;
-            color: white;
-            border-color: var(--accent);
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.85rem;
-            color: var(--text-dim);
-            margin-bottom: 5px;
-        }
+        .tf-btn.no { background: var(--accent-pink); color: #fff; }
 
         .hidden { display: none !important; }
-        .feedback {
-            text-align: center;
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-top: 15px;
-        }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>🍜 Меню-Тренер (Офлайн)</h1>
-    </header>
-
-    <div class="stats-bar">
-        <div class="stat-item">Блюд: <span id="total-dishes">0</span> 🍽️</div>
-        <div class="stat-item">Серия: <span id="streak">0</span> 🔥</div>
-        <div class="stat-item">Рекорд: <span id="max-streak">0</span> 🏆</div>
-        <div class="stat-item">Ошибок: <span id="errors-count">0</span> ❌</div>
+    <!-- Шапка -->
+    <div class="app-header">
+        <div class="header-left">
+            <div class="app-icon">🥢</div>
+            <div>
+                <div class="app-title">ProMenu Master</div>
+                <div class="app-subtitle" id="subtitle-count">Азиатская кухня • 21 позиция</div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="streak-pill">🔥 <span id="streak-val">1</span> <span>|</span> <span id="max-val" style="color:#2ed573">1</span></div>
+            <div class="dict-icon-btn" onclick="toggleDict()">📖</div>
+        </div>
     </div>
 
-    <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchMode('build', this)">🎮 Сбор</button>
-        <button class="tab-btn" onclick="switchMode('tf', this)">⚡ Правда/Ложь</button>
-        <button class="tab-btn" onclick="switchMode('checklist', this)">✅ Чек-лист</button>
-        <button class="tab-btn" onclick="switchMode('dict', this)">📖 Меню</button>
-        <button class="tab-btn" onclick="switchMode('edit', this)">✏️ Редактор</button>
+    <!-- Вкладки режимов -->
+    <div class="modes-nav">
+        <button class="mode-tab active" id="tab-build" onclick="switchTab('build')">
+            <span>🎯 Сбор</span>
+            <span>состава</span>
+        </button>
+        <button class="mode-tab" id="tab-tf" onclick="switchTab('tf')">
+            <span>⚡ Правда /</span>
+            <span>Ложь</span>
+        </button>
+        <button class="mode-tab" id="tab-checklist" onclick="switchTab('checklist')">
+            <span>📝 Чек-лист по</span>
+            <span>блюду</span>
+        </button>
     </div>
 
-    <div class="container">
-        
-        <!-- РЕЖИМ 1: СБОР СОСТАВА -->
-        <div id="mode-build">
-            <div class="mode-switch">
-                <button class="mode-btn active" onclick="setPool('all', this)">Все блюда</button>
-                <button class="mode-btn" onclick="setPool('errors', this)">Только ошибки (<span id="err-badge">0</span>)</button>
+    <!-- 1. РЕЖИМ: СБОР СОСТАВА -->
+    <div id="view-build">
+        <div class="question-card">
+            <div class="card-top-bar">
+                <span class="question-badge" id="q-number">ВОПРОС 1</span>
+                <button class="skip-btn" onclick="nextBuild()">Пропустить ➔</button>
             </div>
 
-            <div class="card">
-                <div class="dish-title" id="build-dish-name">Загрузка...</div>
-                <div class="ingredients-grid" id="build-ingredients"></div>
-                <button class="action-btn" id="build-check-btn" onclick="checkBuild()">Проверить</button>
+            <div class="dish-header" id="build-dish-title">Загрузка...</div>
+            <div class="question-desc">Выберите <b>ВСЕ</b> правильные ингредиенты для этого блюда:</div>
+
+            <div class="chips-container" id="build-chips"></div>
+
+            <button class="primary-btn" id="build-action-btn" onclick="checkBuild()">Проверить ответ</button>
+        </div>
+    </div>
+
+    <!-- 2. РЕЖИМ: ПРАВДА ИЛИ ЛОЖЬ -->
+    <div id="view-tf" class="hidden">
+        <div class="question-card">
+            <div class="dish-header" id="tf-dish-title">Загрузка...</div>
+            <div class="tf-question" id="tf-question-text">...</div>
+            <div class="tf-buttons" id="tf-actions">
+                <button class="tf-btn yes" onclick="answerTF(true)">ДА</button>
+                <button class="tf-btn no" onclick="answerTF(false)">НЕТ</button>
             </div>
+            <div id="tf-feedback" style="text-align:center; font-weight:bold; margin-top:15px;" class="hidden"></div>
+            <button class="primary-btn hidden" id="tf-next-btn" style="margin-top:15px;" onclick="nextTF()">Следующий вопрос ➔</button>
+        </div>
+    </div>
+
+    <!-- 3. РЕЖИМ: ЧЕК-ЛИСТ -->
+    <div id="view-checklist" class="hidden">
+        <div class="question-card">
+            <label style="font-size:0.8rem; color:var(--text-sub); display:block; margin-bottom:8px;">Выберите блюдо для самопроверки:</label>
+            <select class="select-input" id="checklist-select" onchange="loadChecklist()"></select>
+            <div class="chips-container" id="checklist-chips"></div>
+            <button class="primary-btn" onclick="revealChecklist()">Показать верный состав</button>
+        </div>
+    </div>
+
+    <!-- 4. ЭКРАН: СПРАВОЧНИК И РЕДАКТОР -->
+    <div id="view-dict" class="hidden">
+        <div class="overlay-card">
+            <h3 style="font-size:1.05rem; margin-bottom:12px; color:#fff;">➕ Добавить новое блюдо</h3>
+            <input type="text" class="text-input" id="new-name" placeholder="Название блюда">
+            <input type="text" class="text-input" id="new-ings" placeholder="Ингредиенты через запятую">
+            <button class="primary-btn" style="padding:10px; background:var(--green); color:#000;" onclick="addNewDish()">Сохранить</button>
         </div>
 
-        <!-- РЕЖИМ 2: ПРАВДА ИЛИ ЛОЖЬ -->
-        <div id="mode-tf" class="hidden">
-            <div class="card">
-                <div class="dish-title" id="tf-dish-name">Загрузка...</div>
-                <div class="tf-question" id="tf-question-text">...</div>
-                <div class="tf-buttons" id="tf-actions">
-                    <button class="tf-btn yes" onclick="answerTF(true)">ДА</button>
-                    <button class="tf-btn no" onclick="answerTF(false)">НЕТ</button>
-                </div>
-                <div class="feedback hidden" id="tf-feedback"></div>
-                <button class="action-btn hidden" id="tf-next-btn" style="margin-top:15px" onclick="nextTF()">Следующий вопрос ➔</button>
-            </div>
-        </div>
-
-        <!-- РЕЖИМ 3: ЧЕК-ЛИСТ -->
-        <div id="mode-checklist" class="hidden">
-            <div class="card">
-                <label style="font-size:0.85rem; color:var(--text-dim); display:block; margin-bottom:5px;">Выберите блюдо для самопроверки:</label>
-                <select class="select-input" id="checklist-select" onchange="loadChecklist()"></select>
-                <div class="ingredients-grid" id="checklist-grid"></div>
-                <button class="action-btn" onclick="revealChecklist()">Показать верный состав</button>
-            </div>
-        </div>
-
-        <!-- ВКЛАДКА: СПРАВОЧНИК -->
-        <div id="mode-dict" class="hidden">
-            <input type="text" class="search-input" id="search-bar" placeholder="Поиск блюда или ингредиента..." oninput="filterDict()">
+        <div class="overlay-card">
+            <input type="text" class="search-input" id="search-bar" placeholder="Поиск по меню..." oninput="filterDict()">
             <div id="dict-list"></div>
         </div>
+    </div>
 
-        <!-- ВКЛАДКА: РЕДАКТОР МЕНЮ -->
-        <div id="mode-edit" class="hidden">
-            <div class="card">
-                <h2 style="font-size: 1.1rem; margin-bottom: 15px; color: var(--accent);">➕ Добавить новое блюдо</h2>
-                <div class="form-group">
-                    <label>Название блюда или соуса:</label>
-                    <input type="text" class="text-input" id="new-dish-name" placeholder="Например: Рамен острый">
-                </div>
-                <div class="form-group">
-                    <label>Ингредиенты (через запятую):</label>
-                    <input type="text" class="text-input" id="new-dish-ings" placeholder="Лапша, бульон, яйцо, нори, свинина">
-                </div>
-                <button class="action-btn" style="background: var(--green); color:#000;" onclick="addNewDish()">Сохранить блюдо</button>
-            </div>
+    <!-- Нижняя панель действий -->
+    <div class="bottom-actions">
+        <a class="errors-link" onclick="toggleErrorFilter()">⚠️ Мои ошибки ( <span id="err-count">0</span> )</a>
+        <a class="reset-link" onclick="resetStats()">Сбросить статистику</a>
+    </div>
 
-            <div class="card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <h2 style="font-size: 1.1rem; color: #fff;">Управление позициями</h2>
-                    <button class="del-btn" onclick="resetToDefault()">Сбросить всё</button>
-                </div>
-                <div id="edit-list"></div>
-            </div>
-        </div>
-
+    <div class="footer-note">
+        Asian Kitchen Menu Trainer • Обучающий игровой модуль
     </div>
 
     <script>
         const defaultMenu = [
-            { id: 1, name: "Салатная заправка", ingredients: ["Устричный соус", "Соевый соус", "Сахар", "Белый рисовый уксус", "Чеснок", "Имбирь", "Зеленый лук", "Чили перец"] },
-            { id: 2, name: "Крылышки Сычуаньские", ingredients: ["Качудян", "Томатная паста", "Соевый соус"] },
-            { id: 3, name: "5 специй", ingredients: ["Бадьян", "Сычуаньский перец", "Корица", "Имбирь", "Кориандр"] },
-            { id: 4, name: "Рисовый соус", ingredients: ["Кунжутное масло", "Устричный соус"] },
-            { id: 5, name: "Чоу-мейн (соус)", ingredients: ["Соевый соус", "Устричный соус", "Темный соевый соус", "Белый рисовый уксус", "Кунжутное масло"] },
-            { id: 6, name: "Удон (соус)", ingredients: ["Соевый соус", "Устричный соус", "Темный соевый соус", "Белый рисовый уксус", "Кунжутное масло"] },
-            { id: 7, name: "Кисло-сладкий соус", ingredients: ["Белый рисовый уксус", "Сахар", "Кетчуп", "Соевый соус", "Ананасовый сок"] },
-            { id: 8, name: "Гун бао соус", ingredients: ["Светлый соевый соус", "Темный соевый соус", "Сахар", "Маласянь", "Кунжутное масло", "Белый рисовый уксус"] },
-            { id: 9, name: "Цзо соус", ingredients: ["Сахар", "Апельсиновый сок", "Хойсин", "Кетчуп", "Светлый соевый соус", "Темный соевый соус", "Белый рисовый уксус"] },
-            { id: 10, name: "Апельсиновый соус", ingredients: ["Апельсиновый сок", "Цедра апельсина", "Апельсины", "Кунжутное масло", "Чеснок", "Имбирь"] },
-            { id: 11, name: "Свинина веревочкой", ingredients: ["Свинина", "Вино шаосиньское", "Соевый соус", "Бамбук", "Морковь", "Основания зеленого лука", "Чеснок", "Имбирь", "Муэр", "Соус Табадзян", "Устричный соус"] },
-            { id: 12, name: "Хун шао соус", ingredients: ["Бадьян", "Лавровый лист", "Корица", "Сычуаньский перец горошком", "Черный перец горошком", "Соевый соус", "Темный соевый соус", "Вино шаосиньское"] },
-            { id: 13, name: "Пекинская свинина", ingredients: ["Свинина 150г", "Соус Барбекю", "Хойсин", "Чеснок", "Имбирь"] },
-            { id: 14, name: "Говядина в ЧП", ingredients: ["Говядина", "Морковь", "Лук репчатый", "Перец болгарский", "Брокколи", "Мини кукуруза", "Фасоль", "Соус Блэк Пеппер"] },
-            { id: 15, name: "Монгольская говядина", ingredients: ["Говядина", "Морковь", "Перец болгарский", "Лук репчатый", "Сушеный чили перец", "Соус чоу-мейн", "Зеленый лук перо", "Сахар", "Вино шаосиньское", "Основания зеленого лука"] },
-            { id: 16, name: "Баранина", ingredients: ["Баранина", "Зира", "Кинза", "Фиолетовый лук", "Соевый соус", "Вино"] },
-            { id: 17, name: "Креветки в тайском стиле", ingredients: ["Креветки", "Листья лайма", "Лемонграсс", "Чеснок", "Имбирь", "Тайваньская чили паста", "Базилик", "Соевый соус"] },
-            { id: 18, name: "Баклажан со свининой", ingredients: ["Баклажан", "Свинина", "Соус Табадзян", "Чеснок", "Имбирь", "Сахар", "Вино шаосиньское"] },
-            { id: 19, name: "Пикантный баклажан", ingredients: ["Баклажан", "Соевый соус темный", "Соевый соус светлый", "Белый рисовый уксус", "Сахар"] },
-            { id: 20, name: "Тофу по-домашнему", ingredients: ["Тофу", "Основания зеленого лука", "Морковь", "Болгарский перец", "Шиитаке", "Муэр", "Соус Юсянь"] },
-            { id: 21, name: "Три земных свежести", ingredients: ["Картофель/Перец/Баклажан", "Соус маласянь", "Устричный соус", "Сахар"] }
+            { id: 1, name: "1. Салатная заправка", ingredients: ["устричный соус", "соевый соус", "сахар", "белый рисовый уксус", "чеснок", "имбирь", "зеленый лук", "чили перец"] },
+            { id: 2, name: "2. Крылышки Сычуаньские", ingredients: ["качудян", "томатная паста", "соевый соус"] },
+            { id: 3, name: "3. 5 специй", ingredients: ["бадьян", "сычуаньский перец", "корица", "имбирь", "кориандр"] },
+            { id: 4, name: "4. Рисовый соус", ingredients: ["кунжутное масло", "устричный соус"] },
+            { id: 5, name: "5. Чоу-мейн (соус)", ingredients: ["соевый соус", "устричный соус", "темный соевый соус", "белый рисовый уксус", "кунжутное масло"] },
+            { id: 6, name: "6. Удон (соус)", ingredients: ["соевый соус", "устричный соус", "темный соевый соус", "белый рисовый уксус", "кунжутное масло"] },
+            { id: 7, name: "7. Кисло-сладкий соус", ingredients: ["белый рисовый уксус", "сахар", "кетчуп", "соевый соус", "ананасовый сок"] },
+            { id: 8, name: "8. Гун бао соус", ingredients: ["светлый соевый соус", "темный соевый соус", "сахар", "маласянь", "кунжутное масло", "белый рисовый уксус"] },
+            { id: 9, name: "9. Цзо соус", ingredients: ["сахар", "апельсиновый сок", "хойсин", "кетчуп", "светлый соевый соус", "темный соевый соус", "белый рисовый уксус"] },
+            { id: 10, name: "10. Апельсиновый соус", ingredients: ["апельсиновый сок", "цедра апельсина", "апельсины", "кунжутное масло", "чеснок", "имбирь"] },
+            { id: 11, name: "11. Свинина веревочкой", ingredients: ["свинина", "вино шаосиньское", "соевый соус", "бамбук", "морковь", "основания зеленого лука", "чеснок", "имбирь", "муэр", "соус табадзян", "устричный соус"] },
+            { id: 12, name: "12. Хун шао соус", ingredients: ["бадьян", "лавровый лист", "корица", "сычуаньский перец горошком", "черный перец горошком", "соевый соус", "темный соевый соус", "вино шаосиньское"] },
+            { id: 13, name: "13. Пекинская свинина", ingredients: ["свинина 150г", "соус барбекю", "хойсин", "чеснок", "имбирь"] },
+            { id: 14, name: "14. Говядина в ЧП (Черный перец)", ingredients: ["морковь", "лук", "перец", "брокколи", "мини-кукуруза", "стручковая фасоль", "соус блэк пеппер"] },
+            { id: 15, name: "15. Монгольская говядина", ingredients: ["говядина", "морковь", "болгарский перец", "лук репчатый", "сушеный чили перец", "соус чоу-мейн", "лук перо", "сахар", "вино шаосиньское", "основания лука"] },
+            { id: 16, name: "16. Баранина", ingredients: ["баранина", "зира", "кинза", "фиолетовый лук", "соевый соус", "вино"] },
+            { id: 17, name: "17. Креветки в тайском стиле", ingredients: ["креветки", "листья лайма", "лемонграсс", "чеснок", "имбирь", "соус тайваньской чили пасты", "базилик", "соевый соус"] },
+            { id: 18, name: "18. Баклажан со свининой", ingredients: ["баклажан", "свинина", "соус табадзян", "чеснок", "имбирь", "сахар", "вино шаосиньское"] },
+            { id: 19, name: "19. Пикантный баклажан", ingredients: ["баклажан", "соевый соус темный", "соевый соус светлый", "белый рисовый уксус", "сахар"] },
+            { id: 20, name: "20. Тофу по-домашнему", ingredients: ["тофу", "основания лука", "морковь", "болгарский перец", "шиитаке", "муэр", "соус юсянь"] },
+            { id: 21, name: "21. Три земных свежести", ingredients: ["картофель/перец/баклажан", "соус маласянь", "устричный соус", "сахар"] }
         ];
 
-        // Загружаем меню из локального хранилища
         let menuData = JSON.parse(localStorage.getItem('customMenuData')) || defaultMenu;
         let allIngredients = [];
+        let questionCounter = 1;
 
         function refreshIngredients() {
             allIngredients = Array.from(new Set(menuData.flatMap(d => d.ingredients)));
         }
 
         let currentDish = null;
-        let selectedIngs = new Set();
+        let selectedChips = new Set();
         let streak = 0;
         let maxStreak = localStorage.getItem('maxStreak') || 0;
         let errorList = JSON.parse(localStorage.getItem('errorList')) || [];
-        let poolType = 'all';
         let isChecked = false;
         let tfCurrent = {};
-
-        document.getElementById('max-streak').textContent = maxStreak;
+        let onlyErrorsMode = false;
 
         function init() {
             refreshIngredients();
             updateStats();
             renderDict();
-            renderEditList();
             initChecklistSelect();
             nextBuild();
             nextTF();
         }
 
-        function saveMenuData() {
-            localStorage.setItem('customMenuData', JSON.stringify(menuData));
-            refreshIngredients();
-            updateStats();
-            renderDict();
-            renderEditList();
-            initChecklistSelect();
-        }
+        function switchTab(tab) {
+            document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+            ['build', 'tf', 'checklist', 'dict'].forEach(v => document.getElementById('view-' + v).classList.add('hidden'));
 
-        // Переключение режимов
-        function switchMode(mode, btn) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            
-            ['build', 'tf', 'checklist', 'dict', 'edit'].forEach(m => {
-                document.getElementById('mode-' + m).classList.add('hidden');
-            });
-            document.getElementById('mode-' + mode).classList.remove('hidden');
-        }
-
-        function setPool(type, btn) {
-            if (type === 'errors' && errorList.length === 0) {
-                alert("У вас пока нет ошибок!");
-                return;
+            if (tab !== 'dict') {
+                document.getElementById('tab-' + tab).classList.add('active');
+                document.getElementById('view-' + tab).classList.remove('hidden');
+            } else {
+                document.getElementById('view-dict').classList.remove('hidden');
             }
-            poolType = type;
-            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            nextBuild();
         }
 
-        // --- РЕЖИМ 1: СБОР СОСТАВА ---
+        function toggleDict() {
+            const isDictVisible = !document.getElementById('view-dict').classList.contains('hidden');
+            if (isDictVisible) {
+                switchTab('build');
+            } else {
+                switchTab('dict');
+            }
+        }
+
+        /* --- РЕЖИМ: СБОР СОСТАВА --- */
         function nextBuild() {
             isChecked = false;
-            selectedIngs.clear();
-            
-            if (menuData.length === 0) {
-                document.getElementById('build-dish-name').textContent = "Меню пусто! Добавьте блюда в редакторе.";
-                document.getElementById('build-ingredients').innerHTML = '';
-                return;
-            }
+            selectedChips.clear();
+            document.getElementById('q-number').textContent = `ВОПРОС ${questionCounter++}`;
 
             let pool = menuData;
-            if (poolType === 'errors' && errorList.length > 0) {
+            if (onlyErrorsMode && errorList.length > 0) {
                 pool = menuData.filter(d => errorList.includes(d.id));
-                if (pool.length === 0) pool = menuData;
             }
 
             currentDish = pool[Math.floor(Math.random() * pool.length)];
-            document.getElementById('build-dish-name').textContent = currentDish.name;
+            document.getElementById('build-dish-title').textContent = currentDish.name;
 
             const correct = currentDish.ingredients;
             const wrongCandidates = allIngredients.filter(i => !correct.includes(i));
             const wrong = wrongCandidates.sort(() => 0.5 - Math.random()).slice(0, Math.min(4, wrongCandidates.length));
             const options = [...correct, ...wrong].sort(() => 0.5 - Math.random());
 
-            const container = document.getElementById('build-ingredients');
+            const container = document.getElementById('build-chips');
             container.innerHTML = '';
-            
+
             options.forEach(ing => {
-                const btn = document.createElement('button');
-                btn.className = 'ing-btn';
-                btn.textContent = ing;
-                btn.onclick = () => {
+                const chip = document.createElement('div');
+                chip.className = 'chip';
+                chip.textContent = ing;
+                chip.onclick = () => {
                     if (isChecked) return;
-                    if (selectedIngs.has(ing)) {
-                        selectedIngs.delete(ing);
-                        btn.classList.remove('selected');
+                    if (selectedChips.has(ing)) {
+                        selectedChips.delete(ing);
+                        chip.classList.remove('selected');
                     } else {
-                        selectedIngs.add(ing);
-                        btn.classList.add('selected');
+                        selectedChips.add(ing);
+                        chip.classList.add('selected');
                     }
                 };
-                container.appendChild(btn);
+                container.appendChild(chip);
             });
 
-            const checkBtn = document.getElementById('build-check-btn');
-            checkBtn.textContent = 'Проверить';
-            checkBtn.style.background = 'var(--accent)';
+            const btn = document.getElementById('build-action-btn');
+            btn.textContent = 'Проверить ответ';
+            btn.style.background = 'var(--accent-pink)';
         }
 
         function checkBuild() {
-            if (!currentDish || menuData.length === 0) return;
             if (isChecked) {
                 nextBuild();
                 return;
             }
-            if (selectedIngs.size === 0) {
+            if (selectedChips.size === 0) {
                 alert("Выберите хотя бы один ингредиент!");
                 return;
             }
 
             isChecked = true;
             const correctSet = new Set(currentDish.ingredients);
-            let isCorrect = (selectedIngs.size === correctSet.size);
-            
+            let isCorrect = (selectedChips.size === correctSet.size);
+
             if (isCorrect) {
-                for (let item of selectedIngs) {
+                for (let item of selectedChips) {
                     if (!correctSet.has(item)) { isCorrect = false; break; }
                 }
             }
 
-            document.querySelectorAll('#build-ingredients .ing-btn').forEach(btn => {
-                const text = btn.textContent;
-                if (correctSet.has(text)) btn.classList.add('correct');
-                else if (selectedIngs.has(text)) btn.classList.add('wrong');
+            document.querySelectorAll('#build-chips .chip').forEach(chip => {
+                const text = chip.textContent;
+                if (correctSet.has(text)) chip.classList.add('correct');
+                else if (selectedChips.has(text)) chip.classList.add('wrong');
             });
 
             handleResult(isCorrect, currentDish.id);
-            const checkBtn = document.getElementById('build-check-btn');
-            checkBtn.textContent = 'Следующее блюдо ➔';
-            checkBtn.style.background = isCorrect ? 'var(--green)' : 'var(--red)';
+            const btn = document.getElementById('build-action-btn');
+            btn.textContent = 'Следующее блюдо ➔';
+            btn.style.background = isCorrect ? 'var(--green)' : 'var(--accent-pink)';
         }
 
-        // --- РЕЖИМ 2: ПРАВДА / ЛОЖЬ ---
+        /* --- РЕЖИМ: ПРАВДА / ЛОЖЬ --- */
         function nextTF() {
-            if (menuData.length === 0) return;
             document.getElementById('tf-actions').classList.remove('hidden');
             document.getElementById('tf-feedback').classList.add('hidden');
             document.getElementById('tf-next-btn').classList.add('hidden');
@@ -569,7 +633,7 @@
             const shouldBeTrue = Math.random() > 0.5;
             let ingredient = '';
 
-            if (shouldBeTrue || allIngredients.length <= dish.ingredients.length) {
+            if (shouldBeTrue) {
                 ingredient = dish.ingredients[Math.floor(Math.random() * dish.ingredients.length)];
             } else {
                 const wrongList = allIngredients.filter(i => !dish.ingredients.includes(i));
@@ -577,40 +641,36 @@
             }
 
             tfCurrent = { dish, ingredient, isTrue: shouldBeTrue };
-
-            document.getElementById('tf-dish-name').textContent = dish.name;
-            document.getElementById('tf-question-text').innerHTML = `Входит ли <highlight>"${ingredient}"</highlight> в состав?`;
+            document.getElementById('tf-dish-title').textContent = dish.name;
+            document.getElementById('tf-question-text').innerHTML = `Входит ли <highlight>"${ingredient}"</highlight> в этот состав?`;
         }
 
-        function answerTF(userAnswer) {
-            const isCorrect = (userAnswer === tfCurrent.isTrue);
+        function answerTF(ans) {
+            const isCorrect = (ans === tfCurrent.isTrue);
             document.getElementById('tf-actions').classList.add('hidden');
-            
-            const feedback = document.getElementById('tf-feedback');
-            feedback.classList.remove('hidden');
-            
+            const fb = document.getElementById('tf-feedback');
+            fb.classList.remove('hidden');
+
             if (isCorrect) {
-                feedback.textContent = "Правильно! 🎉";
-                feedback.style.color = "var(--green)";
+                fb.textContent = "Правильно! 🎉";
+                fb.style.color = "var(--green)";
             } else {
-                feedback.textContent = tfCurrent.isTrue 
-                    ? `Ошибка! "${tfCurrent.ingredient}" ДЕЙСТВИТЕЛЬНО входит в состав.` 
-                    : `Ошибка! "${tfCurrent.ingredient}" НЕ входит в состав.`;
-                feedback.style.color = "var(--red)";
+                fb.textContent = "Ошибка! ❌";
+                fb.style.color = "var(--accent-pink)";
             }
 
             handleResult(isCorrect, tfCurrent.dish.id);
             document.getElementById('tf-next-btn').classList.remove('hidden');
         }
 
-        // --- РЕЖИМ 3: ЧЕК-ЛИСТ ---
+        /* --- ЧЕК-ЛИСТ --- */
         function initChecklistSelect() {
             const select = document.getElementById('checklist-select');
             select.innerHTML = '';
             menuData.forEach(d => {
                 const opt = document.createElement('option');
                 opt.value = d.id;
-                opt.textContent = `${d.id}. ${d.name}`;
+                opt.textContent = d.name;
                 select.appendChild(opt);
             });
             if (menuData.length > 0) loadChecklist();
@@ -619,8 +679,7 @@
         function loadChecklist() {
             const id = parseInt(document.getElementById('checklist-select').value);
             const dish = menuData.find(d => d.id === id);
-            if (!dish) return;
-            const container = document.getElementById('checklist-grid');
+            const container = document.getElementById('checklist-chips');
             container.innerHTML = '';
 
             const wrongCandidates = allIngredients.filter(i => !dish.ingredients.includes(i));
@@ -628,93 +687,45 @@
             const options = [...dish.ingredients, ...wrong].sort(() => 0.5 - Math.random());
 
             options.forEach(ing => {
-                const btn = document.createElement('button');
-                btn.className = 'ing-btn';
-                btn.textContent = ing;
-                btn.onclick = () => btn.classList.toggle('selected');
-                container.appendChild(btn);
+                const chip = document.createElement('div');
+                chip.className = 'chip';
+                chip.textContent = ing;
+                chip.onclick = () => chip.classList.toggle('selected');
+                container.appendChild(chip);
             });
         }
 
         function revealChecklist() {
             const id = parseInt(document.getElementById('checklist-select').value);
             const dish = menuData.find(d => d.id === id);
-            if (!dish) return;
             const correctSet = new Set(dish.ingredients);
 
-            document.querySelectorAll('#checklist-grid .ing-btn').forEach(btn => {
-                if (correctSet.has(btn.textContent)) {
-                    btn.classList.add('correct');
-                } else if (btn.classList.contains('selected')) {
-                    btn.classList.add('wrong');
-                }
+            document.querySelectorAll('#checklist-chips .chip').forEach(chip => {
+                if (correctSet.has(chip.textContent)) chip.classList.add('correct');
+                else if (chip.classList.contains('selected')) chip.classList.add('wrong');
             });
         }
 
-        // --- РЕДАКТОР МЕНЮ ---
+        /* --- РЕДАКТОР И СПРАВОЧНИК --- */
         function addNewDish() {
-            const nameInput = document.getElementById('new-dish-name');
-            const ingsInput = document.getElementById('new-dish-ings');
+            const name = document.getElementById('new-name').value.trim();
+            const ings = document.getElementById('new-ings').value.trim();
+            if (!name || !ings) return alert("Заполните название и состав!");
 
-            const name = nameInput.value.trim();
-            const ingsRaw = ingsInput.value.trim();
-
-            if (!name || !ingsRaw) {
-                alert("Заполните название и состав блюда!");
-                return;
-            }
-
-            const ingredients = ingsRaw.split(',').map(i => i.trim()).filter(i => i.length > 0);
-
-            if (ingredients.length === 0) {
-                alert("Введите хотя бы один ингредиент!");
-                return;
-            }
-
+            const ingredients = ings.split(',').map(i => i.trim().toLowerCase()).filter(i => i);
             const newId = menuData.length > 0 ? Math.max(...menuData.map(d => d.id)) + 1 : 1;
-            menuData.push({ id: newId, name, ingredients });
 
-            saveMenuData();
-            nameInput.value = '';
-            ingsInput.value = '';
-            alert(`Блюдо "${name}" успешно добавлено!`);
+            menuData.push({ id: newId, name: `${newId}. ${name}`, ingredients });
+            localStorage.setItem('customMenuData', JSON.stringify(menuData));
+            refreshIngredients();
+            updateStats();
+            renderDict();
+            initChecklistSelect();
+            document.getElementById('new-name').value = '';
+            document.getElementById('new-ings').value = '';
+            alert("Блюдо добавлено!");
         }
 
-        function deleteDish(id) {
-            if (confirm("Удалить это блюдо из меню?")) {
-                menuData = menuData.filter(d => d.id !== id);
-                errorList = errorList.filter(eId => eId !== id);
-                localStorage.setItem('errorList', JSON.stringify(errorList));
-                saveMenuData();
-            }
-        }
-
-        function resetToDefault() {
-            if (confirm("Восстановить исходное меню из 21 позиции? Все ваши добавленные блюда сбросятся.")) {
-                menuData = [...defaultMenu];
-                saveMenuData();
-            }
-        }
-
-        function renderEditList() {
-            const container = document.getElementById('edit-list');
-            container.innerHTML = '';
-            
-            menuData.forEach(d => {
-                const item = document.createElement('div');
-                item.className = 'dict-item';
-                item.innerHTML = `
-                    <div class="dict-item-info">
-                        <h3>${d.id}. ${d.name}</h3>
-                        <p>${d.ingredients.join(', ')}</p>
-                    </div>
-                    <button class="del-btn" onclick="deleteDish(${d.id})">Удалить</button>
-                `;
-                container.appendChild(item);
-            });
-        }
-
-        // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
         function handleResult(isCorrect, dishId) {
             if (isCorrect) {
                 streak++;
@@ -732,11 +743,26 @@
         }
 
         function updateStats() {
-            document.getElementById('total-dishes').textContent = menuData.length;
-            document.getElementById('streak').textContent = streak;
-            document.getElementById('max-streak').textContent = maxStreak;
-            document.getElementById('errors-count').textContent = errorList.length;
-            document.getElementById('err-badge').textContent = errorList.length;
+            document.getElementById('streak-val').textContent = streak;
+            document.getElementById('max-val').textContent = maxStreak;
+            document.getElementById('err-count').textContent = errorList.length;
+            document.getElementById('subtitle-count').textContent = `Азиатская кухня • ${menuData.length} позиций`;
+        }
+
+        function toggleErrorFilter() {
+            if (errorList.length === 0) return alert("У вас пока нет ошибочных позиций!");
+            onlyErrorsMode = !onlyErrorsMode;
+            alert(onlyErrorsMode ? "Включен режим повторения ошибок!" : "Режим всех блюд активирован.");
+            nextBuild();
+        }
+
+        function resetStats() {
+            if (confirm("Сбросить статистику серии и список ошибок?")) {
+                streak = 0;
+                errorList = [];
+                localStorage.removeItem('errorList');
+                updateStats();
+            }
         }
 
         function renderDict(filter = '') {
@@ -749,25 +775,13 @@
             filtered.forEach(d => {
                 const item = document.createElement('div');
                 item.className = 'dict-item';
-                item.innerHTML = `<div class="dict-item-info"><h3>${d.id}. ${d.name}</h3><p><b>Состав:</b> ${d.ingredients.join(', ')}</p></div>`;
+                item.innerHTML = `<h4>${d.name}</h4><p><b>Состав:</b> ${d.ingredients.join(', ')}</p>`;
                 container.appendChild(item);
             });
         }
 
         function filterDict() {
             renderDict(document.getElementById('search-bar').value);
-        }
-
-        // Автономный Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                const blob = new Blob([`
-                    self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
-                    self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
-                    self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => new Response('Offline'))));
-                `], { type: 'text/javascript' });
-                navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
-            });
         }
 
         init();
