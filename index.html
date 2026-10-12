@@ -73,10 +73,11 @@
 
         .nav-tabs {
             display: flex;
-            justify-content: center;
+            justify-content: flex-start;
             gap: 6px;
             margin: 0 15px 15px 15px;
             overflow-x: auto;
+            padding-bottom: 5px;
         }
 
         .tab-btn {
@@ -89,7 +90,7 @@
             font-weight: 600;
             cursor: pointer;
             white-space: nowrap;
-            flex: 1;
+            flex-shrink: 0;
             text-align: center;
         }
 
@@ -206,15 +207,15 @@
             cursor: pointer;
         }
 
-        .search-input, .select-input {
+        .search-input, .select-input, .text-input {
             width: 100%;
             padding: 12px 15px;
-            background: var(--card-bg);
+            background: #252530;
             border: 1px solid var(--border);
             border-radius: 10px;
             color: white;
             font-size: 0.95rem;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .dict-item {
@@ -223,7 +224,12 @@
             padding: 12px 15px;
             margin-bottom: 10px;
             border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
+
+        .dict-item-info { flex: 1; }
 
         .dict-item h3 {
             font-size: 1rem;
@@ -235,6 +241,17 @@
             font-size: 0.85rem;
             color: var(--text-dim);
             line-height: 1.4;
+        }
+
+        .del-btn {
+            background: #ff475722;
+            color: var(--red);
+            border: 1px solid var(--red);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            margin-left: 10px;
         }
 
         .mode-switch {
@@ -260,6 +277,17 @@
             border-color: var(--accent);
         }
 
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-bottom: 5px;
+        }
+
         .hidden { display: none !important; }
         .feedback {
             text-align: center;
@@ -276,6 +304,7 @@
     </header>
 
     <div class="stats-bar">
+        <div class="stat-item">Блюд: <span id="total-dishes">0</span> 🍽️</div>
         <div class="stat-item">Серия: <span id="streak">0</span> 🔥</div>
         <div class="stat-item">Рекорд: <span id="max-streak">0</span> 🏆</div>
         <div class="stat-item">Ошибок: <span id="errors-count">0</span> ❌</div>
@@ -286,6 +315,7 @@
         <button class="tab-btn" onclick="switchMode('tf', this)">⚡ Правда/Ложь</button>
         <button class="tab-btn" onclick="switchMode('checklist', this)">✅ Чек-лист</button>
         <button class="tab-btn" onclick="switchMode('dict', this)">📖 Меню</button>
+        <button class="tab-btn" onclick="switchMode('edit', this)">✏️ Редактор</button>
     </div>
 
     <div class="container">
@@ -334,10 +364,34 @@
             <div id="dict-list"></div>
         </div>
 
+        <!-- ВКЛАДКА: РЕДАКТОР МЕНЮ -->
+        <div id="mode-edit" class="hidden">
+            <div class="card">
+                <h2 style="font-size: 1.1rem; margin-bottom: 15px; color: var(--accent);">➕ Добавить новое блюдо</h2>
+                <div class="form-group">
+                    <label>Название блюда или соуса:</label>
+                    <input type="text" class="text-input" id="new-dish-name" placeholder="Например: Рамен острый">
+                </div>
+                <div class="form-group">
+                    <label>Ингредиенты (через запятую):</label>
+                    <input type="text" class="text-input" id="new-dish-ings" placeholder="Лапша, бульон, яйцо, нори, свинина">
+                </div>
+                <button class="action-btn" style="background: var(--green); color:#000;" onclick="addNewDish()">Сохранить блюдо</button>
+            </div>
+
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h2 style="font-size: 1.1rem; color: #fff;">Управление позициями</h2>
+                    <button class="del-btn" onclick="resetToDefault()">Сбросить всё</button>
+                </div>
+                <div id="edit-list"></div>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        const menuData = [
+        const defaultMenu = [
             { id: 1, name: "Салатная заправка", ingredients: ["Устричный соус", "Соевый соус", "Сахар", "Белый рисовый уксус", "Чеснок", "Имбирь", "Зеленый лук", "Чили перец"] },
             { id: 2, name: "Крылышки Сычуаньские", ingredients: ["Качудян", "Томатная паста", "Соевый соус"] },
             { id: 3, name: "5 специй", ingredients: ["Бадьян", "Сычуаньский перец", "Корица", "Имбирь", "Кориандр"] },
@@ -361,7 +415,13 @@
             { id: 21, name: "Три земных свежести", ingredients: ["Картофель/Перец/Баклажан", "Соус маласянь", "Устричный соус", "Сахар"] }
         ];
 
-        const allIngredients = Array.from(new Set(menuData.flatMap(d => d.ingredients)));
+        // Загружаем меню из локального хранилища
+        let menuData = JSON.parse(localStorage.getItem('customMenuData')) || defaultMenu;
+        let allIngredients = [];
+
+        function refreshIngredients() {
+            allIngredients = Array.from(new Set(menuData.flatMap(d => d.ingredients)));
+        }
 
         let currentDish = null;
         let selectedIngs = new Set();
@@ -375,11 +435,22 @@
         document.getElementById('max-streak').textContent = maxStreak;
 
         function init() {
+            refreshIngredients();
             updateStats();
             renderDict();
+            renderEditList();
             initChecklistSelect();
             nextBuild();
             nextTF();
+        }
+
+        function saveMenuData() {
+            localStorage.setItem('customMenuData', JSON.stringify(menuData));
+            refreshIngredients();
+            updateStats();
+            renderDict();
+            renderEditList();
+            initChecklistSelect();
         }
 
         // Переключение режимов
@@ -387,7 +458,7 @@
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             
-            ['build', 'tf', 'checklist', 'dict'].forEach(m => {
+            ['build', 'tf', 'checklist', 'dict', 'edit'].forEach(m => {
                 document.getElementById('mode-' + m).classList.add('hidden');
             });
             document.getElementById('mode-' + mode).classList.remove('hidden');
@@ -409,9 +480,16 @@
             isChecked = false;
             selectedIngs.clear();
             
+            if (menuData.length === 0) {
+                document.getElementById('build-dish-name').textContent = "Меню пусто! Добавьте блюда в редакторе.";
+                document.getElementById('build-ingredients').innerHTML = '';
+                return;
+            }
+
             let pool = menuData;
             if (poolType === 'errors' && errorList.length > 0) {
                 pool = menuData.filter(d => errorList.includes(d.id));
+                if (pool.length === 0) pool = menuData;
             }
 
             currentDish = pool[Math.floor(Math.random() * pool.length)];
@@ -448,6 +526,7 @@
         }
 
         function checkBuild() {
+            if (!currentDish || menuData.length === 0) return;
             if (isChecked) {
                 nextBuild();
                 return;
@@ -481,6 +560,7 @@
 
         // --- РЕЖИМ 2: ПРАВДА / ЛОЖЬ ---
         function nextTF() {
+            if (menuData.length === 0) return;
             document.getElementById('tf-actions').classList.remove('hidden');
             document.getElementById('tf-feedback').classList.add('hidden');
             document.getElementById('tf-next-btn').classList.add('hidden');
@@ -489,7 +569,7 @@
             const shouldBeTrue = Math.random() > 0.5;
             let ingredient = '';
 
-            if (shouldBeTrue) {
+            if (shouldBeTrue || allIngredients.length <= dish.ingredients.length) {
                 ingredient = dish.ingredients[Math.floor(Math.random() * dish.ingredients.length)];
             } else {
                 const wrongList = allIngredients.filter(i => !dish.ingredients.includes(i));
@@ -533,16 +613,16 @@
                 opt.textContent = `${d.id}. ${d.name}`;
                 select.appendChild(opt);
             });
-            loadChecklist();
+            if (menuData.length > 0) loadChecklist();
         }
 
         function loadChecklist() {
             const id = parseInt(document.getElementById('checklist-select').value);
             const dish = menuData.find(d => d.id === id);
+            if (!dish) return;
             const container = document.getElementById('checklist-grid');
             container.innerHTML = '';
 
-            // Перемешиваем варианты для самопроверки
             const wrongCandidates = allIngredients.filter(i => !dish.ingredients.includes(i));
             const wrong = wrongCandidates.sort(() => 0.5 - Math.random()).slice(0, 4);
             const options = [...dish.ingredients, ...wrong].sort(() => 0.5 - Math.random());
@@ -559,6 +639,7 @@
         function revealChecklist() {
             const id = parseInt(document.getElementById('checklist-select').value);
             const dish = menuData.find(d => d.id === id);
+            if (!dish) return;
             const correctSet = new Set(dish.ingredients);
 
             document.querySelectorAll('#checklist-grid .ing-btn').forEach(btn => {
@@ -567,6 +648,69 @@
                 } else if (btn.classList.contains('selected')) {
                     btn.classList.add('wrong');
                 }
+            });
+        }
+
+        // --- РЕДАКТОР МЕНЮ ---
+        function addNewDish() {
+            const nameInput = document.getElementById('new-dish-name');
+            const ingsInput = document.getElementById('new-dish-ings');
+
+            const name = nameInput.value.trim();
+            const ingsRaw = ingsInput.value.trim();
+
+            if (!name || !ingsRaw) {
+                alert("Заполните название и состав блюда!");
+                return;
+            }
+
+            const ingredients = ingsRaw.split(',').map(i => i.trim()).filter(i => i.length > 0);
+
+            if (ingredients.length === 0) {
+                alert("Введите хотя бы один ингредиент!");
+                return;
+            }
+
+            const newId = menuData.length > 0 ? Math.max(...menuData.map(d => d.id)) + 1 : 1;
+            menuData.push({ id: newId, name, ingredients });
+
+            saveMenuData();
+            nameInput.value = '';
+            ingsInput.value = '';
+            alert(`Блюдо "${name}" успешно добавлено!`);
+        }
+
+        function deleteDish(id) {
+            if (confirm("Удалить это блюдо из меню?")) {
+                menuData = menuData.filter(d => d.id !== id);
+                errorList = errorList.filter(eId => eId !== id);
+                localStorage.setItem('errorList', JSON.stringify(errorList));
+                saveMenuData();
+            }
+        }
+
+        function resetToDefault() {
+            if (confirm("Восстановить исходное меню из 21 позиции? Все ваши добавленные блюда сбросятся.")) {
+                menuData = [...defaultMenu];
+                saveMenuData();
+            }
+        }
+
+        function renderEditList() {
+            const container = document.getElementById('edit-list');
+            container.innerHTML = '';
+            
+            menuData.forEach(d => {
+                const item = document.createElement('div');
+                item.className = 'dict-item';
+                item.innerHTML = `
+                    <div class="dict-item-info">
+                        <h3>${d.id}. ${d.name}</h3>
+                        <p>${d.ingredients.join(', ')}</p>
+                    </div>
+                    <button class="del-btn" onclick="deleteDish(${d.id})">Удалить</button>
+                `;
+                container.appendChild(item);
             });
         }
 
@@ -588,6 +732,7 @@
         }
 
         function updateStats() {
+            document.getElementById('total-dishes').textContent = menuData.length;
             document.getElementById('streak').textContent = streak;
             document.getElementById('max-streak').textContent = maxStreak;
             document.getElementById('errors-count').textContent = errorList.length;
@@ -604,7 +749,7 @@
             filtered.forEach(d => {
                 const item = document.createElement('div');
                 item.className = 'dict-item';
-                item.innerHTML = `<h3>${d.id}. ${d.name}</h3><p><b>Состав:</b> ${d.ingredients.join(', ')}</p>`;
+                item.innerHTML = `<div class="dict-item-info"><h3>${d.id}. ${d.name}</h3><p><b>Состав:</b> ${d.ingredients.join(', ')}</p></div>`;
                 container.appendChild(item);
             });
         }
