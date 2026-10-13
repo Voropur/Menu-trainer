@@ -14,12 +14,12 @@
             --card-bg: #0e1424;
             --card-border: #1a233b;
             --accent-pink: #ff2a55;
-            --accent-pink-hover: #e02248;
             --chip-bg: #151d30;
             --chip-border: #232f4d;
             --chip-selected-bg: #4a1122;
             --chip-selected-border: #ff2a55;
             --green: #2ed573;
+            --missed-yellow: #f1c40f;
             --text-main: #f0f4f8;
             --text-sub: #7a8b9e;
         }
@@ -217,7 +217,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             justify-content: flex-start;
         }
 
@@ -240,6 +240,7 @@
             box-shadow: 0 0 10px rgba(255, 42, 85, 0.2);
         }
 
+        /* Подсвечивание при проверке */
         .chip.correct {
             background: #0f3822 !important;
             border-color: var(--green) !important;
@@ -252,6 +253,49 @@
             color: #fff !important;
             text-decoration: line-through;
         }
+
+        .chip.missed {
+            background: #383011 !important;
+            border: 2px dashed var(--missed-yellow) !important;
+            color: #ffeaa7 !important;
+            font-weight: bold;
+        }
+
+        /* Развернутая текстовая обратная связь */
+        .feedback-box {
+            background: #131a2b;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            border: 1px solid var(--card-border);
+        }
+
+        .feedback-box.correct-box {
+            border-color: var(--green);
+            background: #0d2618;
+            color: #2ed573;
+        }
+
+        .feedback-box.error-box {
+            border-color: var(--accent-pink);
+            background: #260e17;
+        }
+
+        .feedback-title {
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+
+        .feedback-detail {
+            color: var(--text-sub);
+            margin-top: 4px;
+        }
+
+        .feedback-detail b.missed-txt { color: var(--missed-yellow); }
+        .feedback-detail b.extra-txt { color: var(--accent-pink); }
 
         /* Кнопка действия */
         .primary-btn {
@@ -422,6 +466,8 @@
 
             <div class="chips-container" id="build-chips"></div>
 
+            <div id="build-feedback" class="feedback-box hidden"></div>
+
             <button class="primary-btn" id="build-action-btn" onclick="checkBuild()">Проверить ответ</button>
         </div>
     </div>
@@ -552,6 +598,7 @@
             isChecked = false;
             selectedChips.clear();
             document.getElementById('q-number').textContent = `ВОПРОС ${questionCounter++}`;
+            document.getElementById('build-feedback').classList.add('hidden');
 
             let pool = menuData;
             if (onlyErrorsMode && errorList.length > 0) {
@@ -603,24 +650,57 @@
 
             isChecked = true;
             const correctSet = new Set(currentDish.ingredients);
-            let isCorrect = (selectedChips.size === correctSet.size);
+            
+            const missedIngs = [];
+            const extraIngs = [];
 
-            if (isCorrect) {
-                for (let item of selectedChips) {
-                    if (!correctSet.has(item)) { isCorrect = false; break; }
-                }
-            }
-
+            // Проверяем выбранные и невыбранные ингредиенты
             document.querySelectorAll('#build-chips .chip').forEach(chip => {
                 const text = chip.textContent;
-                if (correctSet.has(text)) chip.classList.add('correct');
-                else if (selectedChips.has(text)) chip.classList.add('wrong');
+                const isSelected = selectedChips.has(text);
+                const isCorrect = correctSet.has(text);
+
+                if (isSelected && isCorrect) {
+                    chip.classList.add('correct');
+                } else if (isSelected && !isCorrect) {
+                    chip.classList.add('wrong');
+                    extraIngs.push(text);
+                } else if (!isSelected && isCorrect) {
+                    chip.classList.add('missed');
+                    missedIngs.push(text);
+                }
             });
 
-            handleResult(isCorrect, currentDish.id);
+            const isTotallyCorrect = (missedIngs.length === 0 && extraIngs.length === 0);
+
+            // Показываем подробный разбор
+            const feedbackBox = document.getElementById('build-feedback');
+            feedbackBox.classList.remove('hidden');
+
+            if (isTotallyCorrect) {
+                feedbackBox.className = "feedback-box correct-box";
+                feedbackBox.innerHTML = `
+                    <div class="feedback-title">🎉 Идеально!</div>
+                    <div class="feedback-detail">Вы выбрали абсолютно все правильные ингредиенты.</div>
+                `;
+            } else {
+                feedbackBox.className = "feedback-box error-box";
+                let html = `<div class="feedback-title">❌ Есть ошибки в составе:</div>`;
+                
+                if (missedIngs.length > 0) {
+                    html += `<div class="feedback-detail">🟡 <b class="missed-txt">Забыли добавить:</b> ${missedIngs.join(', ')}</div>`;
+                }
+                if (extraIngs.length > 0) {
+                    html += `<div class="feedback-detail">🔴 <b class="extra-txt">Лишние ингредиенты:</b> ${extraIngs.join(', ')}</div>`;
+                }
+
+                feedbackBox.innerHTML = html;
+            }
+
+            handleResult(isTotallyCorrect, currentDish.id);
             const btn = document.getElementById('build-action-btn');
             btn.textContent = 'Следующее блюдо ➔';
-            btn.style.background = isCorrect ? 'var(--green)' : 'var(--accent-pink)';
+            btn.style.background = isTotallyCorrect ? 'var(--green)' : 'var(--accent-pink)';
         }
 
         /* --- РЕЖИМ: ПРАВДА / ЛОЖЬ --- */
