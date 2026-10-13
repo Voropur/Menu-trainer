@@ -103,18 +103,20 @@
 
         .streak-pill span { color: #7a8b9e; }
 
-        .dict-icon-btn {
+        .admin-trigger-btn {
             background: #111a2e;
             border: 1px solid #1f2d4d;
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 1.1rem;
+            transition: transform 0.2s;
         }
+        .admin-trigger-btn:active { transform: scale(0.92); }
 
         .modes-nav {
             background: var(--card-bg);
@@ -483,6 +485,70 @@
         .tf-btn.yes { background: var(--green); color: #000; }
         .tf-btn.no { background: var(--accent-pink); color: #fff; }
 
+        /* ВЫДВИЖНАЯ ШТОРКА СПРАВА */
+        .drawer-backdrop {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .drawer-backdrop.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .admin-drawer {
+            position: fixed;
+            top: 0; right: -100%; bottom: 0;
+            width: 85%;
+            max-width: 400px;
+            background: var(--bg-dark);
+            border-left: 1px solid var(--card-border);
+            z-index: 201;
+            padding: 20px;
+            overflow-y: auto;
+            transition: right 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        }
+        .admin-drawer.open {
+            right: 0;
+        }
+
+        .drawer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .drawer-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .close-drawer-btn {
+            background: #1a233b;
+            border: 1px solid var(--card-border);
+            color: var(--text-sub);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -491,7 +557,7 @@
             align-items: center;
             justify-content: center;
             padding: 15px;
-            z-index: 100;
+            z-index: 300;
         }
 
         .modal-card {
@@ -531,10 +597,11 @@
         </div>
         <div class="header-right">
             <div class="streak-pill">🔥 <span id="streak-val">0</span> <span>|</span> <span id="max-val" style="color:#2ed573">0</span></div>
-            <div class="dict-icon-btn" onclick="toggleDict()">📖</div>
+            <div class="admin-trigger-btn" onclick="toggleAdminDrawer()" title="Панель администратора">⚙️</div>
         </div>
     </div>
 
+    <!-- Режимы тренажера -->
     <div class="modes-nav">
         <button class="mode-tab active" id="tab-build" onclick="switchTab('build')">
             <span>🎯 Сбор</span>
@@ -590,15 +657,23 @@
         </div>
     </div>
 
-    <div id="view-dict" class="hidden">
-        <div class="overlay-card">
-            <h3 style="font-size:1.05rem; margin-bottom:12px; color:#ff4757;">📊 Топ ваших ошибок по позициям</h3>
-            <div id="stats-errors-list"><p style="color:var(--text-sub); font-size:0.85rem;">Пока нет ошибок. Так держать! 🎉</p></div>
+    <!-- ВЫДВИЖНАЯ ШТОРКА (АДМИНКА) -->
+    <div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleAdminDrawer()"></div>
+    <div class="admin-drawer" id="admin-drawer">
+        <div class="drawer-header">
+            <div class="drawer-title">⚙️ Управление меню</div>
+            <button class="close-drawer-btn" onclick="toggleAdminDrawer()">✕</button>
         </div>
 
-        <div class="overlay-card">
-            <h3 style="font-size:1.05rem; margin-bottom:12px; color:#fff;">➕ Добавить новую позицию</h3>
-            <input type="text" class="text-input" id="new-name" placeholder="Название (например: 1. Битые огурцы)">
+        <div class="overlay-card" style="border-color: #2ed573; background: #0b1a15; margin-bottom: 15px;">
+            <h3 style="font-size:0.95rem; margin-bottom:6px; color:#2ed573;">🌐 Синхронизация с GitHub</h3>
+            <p style="font-size:0.75rem; color:var(--text-sub); margin-bottom:10px;">Скачайте готовый код со всеми вашими новыми блюдами:</p>
+            <button class="primary-btn" style="background:#2ed573; color:#000; padding: 12px; font-size: 0.88rem;" onclick="exportMenu()">📥 Скачать index.html</button>
+        </div>
+
+        <div class="overlay-card" style="margin-bottom: 15px;">
+            <h3 style="font-size:0.95rem; margin-bottom:10px; color:#fff;">➕ Добавить новую позицию</h3>
+            <input type="text" class="text-input" id="new-name" placeholder="Например: 36. Новое блюдо">
             <select class="select-input" id="new-category">
                 <option value="starters">🥗 Закуски и салаты</option>
                 <option value="soups">🍜 Супы</option>
@@ -608,30 +683,18 @@
                 <option value="sauces">🏺 Соусы и заготовки</option>
             </select>
             <input type="text" class="text-input" id="new-ings" placeholder="Ингредиенты через запятую">
-            <button class="primary-btn" onclick="addNewDish()">Добавить позицию</button>
+            <button class="primary-btn" style="padding: 12px; font-size: 0.88rem;" onclick="addNewDish()">Добавить в меню</button>
         </div>
 
-        <div class="overlay-card">
-            <h3 style="font-size:1.05rem; margin-bottom:12px; color:#fff;">🌐 Скачать готовый index.html для GitHub</h3>
-            <button class="primary-btn" style="background:#2ed573; color:#000;" onclick="exportMenu()">📥 Скачать index.html</button>
+        <div class="overlay-card" style="margin-bottom: 15px;">
+            <h3 style="font-size:0.95rem; margin-bottom:10px; color:#ff4757;">📊 Топ ваших ошибок</h3>
+            <div id="stats-errors-list"><p style="color:var(--text-sub); font-size:0.8rem;">Пока нет ошибок. 🎉</p></div>
         </div>
+    </div>
 
-        <div class="overlay-card">
-            <div class="search-container">
-                <input type="text" class="search-input" id="search-bar" placeholder="Поиск по названию или ингредиенту..." oninput="filterDict()">
-                <button class="clear-search-btn hidden" id="clear-search-btn" onclick="clearSearch()">✖</button>
-            </div>
-            <div class="dict-filters">
-                <button class="filter-btn active" id="f-all" onclick="setDictFilter('all')">Все</button>
-                <button class="filter-btn" id="f-starters" onclick="setDictFilter('starters')">🥗 Закуски</button>
-                <button class="filter-btn" id="f-soups" onclick="setDictFilter('soups')">🍜 Супы</button>
-                <button class="filter-btn" id="f-noodles" onclick="setDictFilter('noodles')">🥢 Лапша/Рис</button>
-                <button class="filter-btn" id="f-mains" onclick="setDictFilter('mains')">🥘 Основные</button>
-                <button class="filter-btn" id="f-desserts" onclick="setDictFilter('desserts')">🍰 Десерты</button>
-                <button class="filter-btn" id="f-sauces" onclick="setDictFilter('sauces')">🏺 Соусы</button>
-            </div>
-            <div id="dict-list"></div>
-        </div>
+    <!-- Вкладка справочника с поиском по блюдам прямо на главном экране -->
+    <div id="view-dict" class="hidden">
+        <!-- Сюда при необходимости можно вынести просмотр каталога, если нужен отдельный режим -->
     </div>
 
     <div id="edit-modal" class="modal-overlay hidden">
@@ -753,7 +816,6 @@
 
         let allIngredients = [];
         let questionCounter = 1;
-        let currentDictFilter = 'all';
         let editingDishId = null;
 
         function refreshIngredients() {
@@ -774,38 +836,31 @@
             sortMenu();
             refreshIngredients();
             updateStats();
-            renderDict();
             renderErrorStats();
             initChecklistSelect();
             nextBuild();
             nextTF();
         }
 
+        function toggleAdminDrawer() {
+            const drawer = document.getElementById('admin-drawer');
+            const backdrop = document.getElementById('drawer-backdrop');
+            drawer.classList.toggle('open');
+            backdrop.classList.toggle('open');
+            renderErrorStats();
+        }
+
         function switchTab(tab) {
             document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
-            ['build', 'tf', 'checklist', 'dict'].forEach(v => {
+            ['build', 'tf', 'checklist'].forEach(v => {
                 let el = document.getElementById('view-' + v);
                 if (el) el.classList.add('hidden');
             });
 
-            if (tab !== 'dict') {
-                let tabEl = document.getElementById('tab-' + tab);
-                if (tabEl) tabEl.classList.add('active');
-                let viewEl = document.getElementById('view-' + tab);
-                if (viewEl) viewEl.classList.remove('hidden');
-            } else {
-                let dictEl = document.getElementById('view-dict');
-                if (dictEl) dictEl.classList.remove('hidden');
-                renderErrorStats();
-            }
-        }
-
-        function toggleDict() {
-            let dictEl = document.getElementById('view-dict');
-            if (!dictEl) return;
-            const isDictVisible = !dictEl.classList.contains('hidden');
-            if (isDictVisible) switchTab('build');
-            else switchTab('dict');
+            let tabEl = document.getElementById('tab-' + tab);
+            if (tabEl) tabEl.classList.add('active');
+            let viewEl = document.getElementById('view-' + tab);
+            if (viewEl) viewEl.classList.remove('hidden');
         }
 
         function nextBuild() {
@@ -1044,61 +1099,6 @@
             alert("Позиция успешно добавлена!");
         }
 
-        function openEditModal(id) {
-            const dish = menuData.find(d => d.id === id);
-            if (!dish) return;
-            editingDishId = id;
-            let eName = document.getElementById('edit-name');
-            let eCat = document.getElementById('edit-category');
-            let eIngs = document.getElementById('edit-ings');
-            let eModal = document.getElementById('edit-modal');
-            if (eName) eName.value = dish.name;
-            if (eCat) eCat.value = dish.category || 'mains';
-            if (eIngs) eIngs.value = (dish.ingredients || []).join(', ');
-            if (eModal) eModal.classList.remove('hidden');
-        }
-
-        function closeEditModal() {
-            editingDishId = null;
-            let eModal = document.getElementById('edit-modal');
-            if (eModal) eModal.classList.add('hidden');
-        }
-
-        function saveEditedDish() {
-            if (!editingDishId) return;
-            const dish = menuData.find(d => d.id === editingDishId);
-            if (!dish) return;
-
-            let eName = document.getElementById('edit-name');
-            let eCat = document.getElementById('edit-category');
-            let eIngs = document.getElementById('edit-ings');
-            if (!eName || !eCat || !eIngs) return;
-
-            const newName = eName.value.trim();
-            const newCategory = eCat.value;
-            const newIngsStr = eIngs.value.trim();
-
-            if (!newName || !newIngsStr) return alert("Заполните все поля!");
-
-            dish.name = newName;
-            dish.category = newCategory;
-            dish.ingredients = Array.from(new Set(newIngsStr.split(',').map(i => normalizeIng(i)).filter(i => i)));
-
-            saveMenuData();
-            closeEditModal();
-        }
-
-        function deleteDish(id) {
-            const dish = menuData.find(d => d.id === id);
-            if (!dish) return;
-            if (confirm(`Удалить позицию "${dish.displayName}"?`)) {
-                menuData = menuData.filter(d => d.id !== id);
-                delete errorCounts[id];
-                errorList = errorList.filter(eId => eId !== id);
-                saveMenuData();
-            }
-        }
-
         function saveMenuData() {
             sortMenu();
             try {
@@ -1108,7 +1108,6 @@
             } catch (e) {}
             refreshIngredients();
             updateStats();
-            renderDict();
             renderErrorStats();
             initChecklistSelect();
         }
@@ -1209,7 +1208,7 @@
             const sortedErrors = Object.entries(errorCounts).sort((a, b) => b[1] - a[1]);
 
             if (sortedErrors.length === 0) {
-                container.innerHTML = `<p style="color:var(--text-sub); font-size:0.85rem;">Пока нет ошибок. Отличный результат! 🎉</p>`;
+                container.innerHTML = `<p style="color:var(--text-sub); font-size:0.8rem;">Пока нет ошибок. 🎉</p>`;
                 return;
             }
 
@@ -1223,90 +1222,12 @@
                 item.innerHTML = `
                     <div class="dict-item-info">
                         <h4>${dish.displayName}</h4>
-                        <p>Ошибок допущено: <b>${count} раз(а)</b></p>
+                        <p style="font-size:0.75rem;">Ошибок: <b>${count}</b></p>
                     </div>
                     <div class="err-badge-count">⚠️ ${count}</div>
                 `;
                 container.appendChild(item);
             });
-        }
-
-        function setDictFilter(filter) {
-            currentDictFilter = filter;
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            let btn = document.getElementById('f-' + filter);
-            if (btn) btn.classList.add('active');
-            let sb = document.getElementById('search-bar');
-            renderDict(sb ? sb.value : '');
-        }
-
-        function searchByIngredient(ingName) {
-            const searchBar = document.getElementById('search-bar');
-            if (searchBar) {
-                searchBar.value = ingName;
-                filterDict();
-            }
-        }
-
-        function clearSearch() {
-            const searchBar = document.getElementById('search-bar');
-            if (searchBar) {
-                searchBar.value = '';
-                filterDict();
-            }
-        }
-
-        function renderDict(filter = '') {
-            const container = document.getElementById('dict-list');
-            const clearBtn = document.getElementById('clear-search-btn');
-            if (!container) return;
-            container.innerHTML = '';
-
-            if (clearBtn) {
-                if (filter.trim()) clearBtn.classList.remove('hidden');
-                else clearBtn.classList.add('hidden');
-            }
-
-            const filtered = menuData.filter(d => {
-                const matchesSearch = d.displayName.toLowerCase().includes(filter.toLowerCase()) || 
-                                      (d.ingredients || []).some(i => i.toLowerCase().includes(filter.toLowerCase()));
-                const matchesCategory = currentDictFilter === 'all' || d.category === currentDictFilter;
-                return matchesSearch && matchesCategory;
-            });
-
-            if (filtered.length === 0) {
-                container.innerHTML = `<p style="color:var(--text-sub); font-size:0.85rem; text-align:center; padding:10px;">Ничего не найдено</p>`;
-                return;
-            }
-
-            filtered.forEach(d => {
-                const cat = categoryMeta[d.category] || categoryMeta.mains;
-                const badge = `<span class="cat-tag ${cat.badgeClass}">${cat.icon} ${cat.name}</span>`;
-
-                const ingTagsHtml = (d.ingredients || []).map(ing => 
-                    `<span class="ing-tag" onclick="searchByIngredient('${ing}')">${ing}</span>`
-                ).join('');
-
-                const item = document.createElement('div');
-                item.className = 'dict-item';
-                item.innerHTML = `
-                    <div class="dict-item-info">
-                        <h4>${d.displayName} ${badge}</h4>
-                        <div class="dict-ing-tags">${ingTagsHtml}</div>
-                    </div>
-                    <div class="dict-item-actions">
-                        <button class="action-icon-btn" onclick="openEditModal(${d.id})">✏️</button>
-                        <button class="action-icon-btn">🗑️</button>
-                    </div>
-                `;
-                item.querySelector('.action-icon-btn:last-child').onclick = () => deleteDish(d.id);
-                container.appendChild(item);
-            });
-        }
-
-        function filterDict() {
-            let sb = document.getElementById('search-bar');
-            renderDict(sb ? sb.value : '');
         }
 
         window.addEventListener('DOMContentLoaded', init);
