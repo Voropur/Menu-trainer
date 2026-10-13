@@ -346,6 +346,11 @@
             margin-bottom: 20px;
         }
 
+        .search-container {
+            position: relative;
+            width: 100%;
+        }
+
         .search-input, .text-input, .select-input {
             width: 100%;
             padding: 12px 14px;
@@ -355,6 +360,17 @@
             color: #fff;
             font-size: 0.88rem;
             margin-bottom: 12px;
+        }
+
+        .clear-search-btn {
+            position: absolute;
+            right: 12px;
+            top: 10px;
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            font-size: 1rem;
+            cursor: pointer;
         }
 
         .dict-filters {
@@ -390,12 +406,50 @@
             border: 1px solid var(--card-border);
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
+            gap: 10px;
         }
 
         .dict-item-info { flex: 1; }
-        .dict-item h4 { color: var(--accent-pink); font-size: 0.95rem; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
-        .dict-item p { color: var(--text-sub); font-size: 0.82rem; line-height: 1.4; }
+        .dict-item h4 { color: var(--accent-pink); font-size: 0.95rem; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        
+        /* Кликабельные теги ингредиентов */
+        .dict-ing-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 6px;
+        }
+
+        .ing-tag {
+            background: #1a253d;
+            border: 1px solid #283759;
+            color: #c0d1e5;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .ing-tag:active {
+            background: var(--accent-pink);
+            color: #fff;
+        }
+
+        .dict-item-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .action-icon-btn {
+            background: #1a233b;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 6px 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
 
         .tag-sauce {
             font-size: 0.68rem;
@@ -436,6 +490,39 @@
         .tf-btn { flex: 1; padding: 14px; border-radius: 12px; border: none; font-weight: bold; font-size: 1rem; cursor: pointer; }
         .tf-btn.yes { background: var(--green); color: #000; }
         .tf-btn.no { background: var(--accent-pink); color: #fff; }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            z-index: 100;
+        }
+
+        .modal-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 20px;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .modal-btns {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
 
         .hidden { display: none !important; }
     </style>
@@ -535,13 +622,39 @@
         </div>
 
         <div class="overlay-card">
-            <input type="text" class="search-input" id="search-bar" placeholder="Поиск по меню..." oninput="filterDict()">
+            <div class="search-container">
+                <input type="text" class="search-input" id="search-bar" placeholder="Поиск по названию или ингредиенту..." oninput="filterDict()">
+                <button class="clear-search-btn hidden" id="clear-search-btn" onclick="clearSearch()">✖</button>
+            </div>
             <div class="dict-filters">
                 <button class="filter-btn active" id="f-all" onclick="setDictFilter('all')">Все</button>
                 <button class="filter-btn" id="f-dish" onclick="setDictFilter('dish')">🍲 Блюда</button>
                 <button class="filter-btn" id="f-sauce" onclick="setDictFilter('sauce')">🥢 Соусы</button>
             </div>
             <div id="dict-list"></div>
+        </div>
+    </div>
+
+    <!-- Модальное окно редактирования -->
+    <div id="edit-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-title">✏️ Редактирование позиции</div>
+            <label style="font-size:0.78rem; color:var(--text-sub); display:block; margin-bottom:4px;">Название:</label>
+            <input type="text" class="text-input" id="edit-name">
+            
+            <label style="font-size:0.78rem; color:var(--text-sub); display:block; margin-bottom:4px;">Категория:</label>
+            <select class="select-input" id="edit-type">
+                <option value="dish">🍲 Блюдо</option>
+                <option value="sauce">🥢 Соус / Заготовка</option>
+            </select>
+
+            <label style="font-size:0.78rem; color:var(--text-sub); display:block; margin-bottom:4px;">Ингредиенты (через запятую):</label>
+            <textarea class="text-input" id="edit-ings" rows="3" style="resize:none;"></textarea>
+
+            <div class="modal-btns">
+                <button class="secondary-btn" style="margin-top:0;" onclick="closeEditModal()">Отмена</button>
+                <button class="primary-btn" style="margin-top:0;" onclick="saveEditedDish()">Сохранить</button>
+            </div>
         </div>
     </div>
 
@@ -617,6 +730,7 @@
         let allIngredients = [];
         let questionCounter = 1;
         let currentDictFilter = 'all';
+        let editingDishId = null;
 
         function refreshIngredients() {
             allIngredients = Array.from(new Set(menuData.flatMap(d => d.ingredients.map(normalizeIng))));
@@ -662,6 +776,7 @@
         }
 
         function nextBuild() {
+            if (menuData.length === 0) return;
             isChecked = false;
             selectedChips.clear();
             document.getElementById('q-number').textContent = `ВОПРОС ${questionCounter++}`;
@@ -670,6 +785,7 @@
             let pool = menuData;
             if (onlyErrorsMode && errorList.length > 0) {
                 pool = menuData.filter(d => errorList.includes(d.id));
+                if (pool.length === 0) pool = menuData;
             }
 
             currentDish = pool[Math.floor(Math.random() * pool.length)];
@@ -769,6 +885,7 @@
         }
 
         function nextTF() {
+            if (menuData.length === 0) return;
             document.getElementById('tf-actions').classList.remove('hidden');
             document.getElementById('tf-feedback').classList.add('hidden');
             document.getElementById('tf-next-btn').classList.add('hidden');
@@ -781,7 +898,7 @@
                 ingredient = dish.ingredients[Math.floor(Math.random() * dish.ingredients.length)];
             } else {
                 const wrongList = allIngredients.filter(i => !dish.ingredients.includes(i));
-                ingredient = wrongList[Math.floor(Math.random() * wrongList.length)];
+                ingredient = wrongList.length > 0 ? wrongList[Math.floor(Math.random() * wrongList.length)] : dish.ingredients[0];
             }
 
             tfCurrent = { dish, ingredient, isTrue: shouldBeTrue };
@@ -822,6 +939,7 @@
         function loadChecklist() {
             const id = parseInt(document.getElementById('checklist-select').value);
             const dish = menuData.find(d => d.id === id);
+            if (!dish) return;
             const container = document.getElementById('checklist-chips');
             container.innerHTML = '';
 
@@ -841,6 +959,7 @@
         function revealChecklist() {
             const id = parseInt(document.getElementById('checklist-select').value);
             const dish = menuData.find(d => d.id === id);
+            if (!dish) return;
             const correctSet = new Set(dish.ingredients);
 
             document.querySelectorAll('#checklist-chips .chip').forEach(chip => {
@@ -858,15 +977,66 @@
             const newId = menuData.length > 0 ? Math.max(...menuData.map(d => d.id)) + 1 : 1;
 
             menuData.push({ id: newId, name: `${newId}. ${name.replace(/^\d+\.\s*/, '')}`, type: type, ingredients });
+            saveMenuData();
+            document.getElementById('new-name').value = '';
+            document.getElementById('new-ings').value = '';
+            alert("Позиция успешно добавлена!");
+        }
+
+        function openEditModal(id) {
+            const dish = menuData.find(d => d.id === id);
+            if (!dish) return;
+            editingDishId = id;
+            document.getElementById('edit-name').value = dish.name;
+            document.getElementById('edit-type').value = dish.type || 'dish';
+            document.getElementById('edit-ings').value = dish.ingredients.join(', ');
+            document.getElementById('edit-modal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            editingDishId = null;
+            document.getElementById('edit-modal').classList.add('hidden');
+        }
+
+        function saveEditedDish() {
+            if (!editingDishId) return;
+            const dish = menuData.find(d => d.id === editingDishId);
+            if (!dish) return;
+
+            const newName = document.getElementById('edit-name').value.trim();
+            const newType = document.getElementById('edit-type').value;
+            const newIngsStr = document.getElementById('edit-ings').value.trim();
+
+            if (!newName || !newIngsStr) return alert("Заполните все поля!");
+
+            dish.name = newName;
+            dish.type = newType;
+            dish.ingredients = Array.from(new Set(newIngsStr.split(',').map(i => normalizeIng(i)).filter(i => i)));
+
+            saveMenuData();
+            closeEditModal();
+        }
+
+        function deleteDish(id) {
+            const dish = menuData.find(d => d.id === id);
+            if (!dish) return;
+            if (confirm(`Удалить позицию "${dish.name}"?`)) {
+                menuData = menuData.filter(d => d.id !== id);
+                delete errorCounts[id];
+                errorList = errorList.filter(eId => eId !== id);
+                saveMenuData();
+            }
+        }
+
+        function saveMenuData() {
             localStorage.setItem('customMenuData', JSON.stringify(menuData));
+            localStorage.setItem('errorList', JSON.stringify(errorList));
+            localStorage.setItem('errorCounts', JSON.stringify(errorCounts));
             refreshIngredients();
             updateStats();
             renderDict();
             renderErrorStats();
             initChecklistSelect();
-            document.getElementById('new-name').value = '';
-            document.getElementById('new-ings').value = '';
-            alert("Позиция успешно добавлена!");
         }
 
         function exportMenu() {
@@ -888,12 +1058,7 @@
                     const importedData = JSON.parse(e.target.result);
                     if (Array.isArray(importedData)) {
                         menuData = importedData;
-                        localStorage.setItem('customMenuData', JSON.stringify(menuData));
-                        refreshIngredients();
-                        updateStats();
-                        renderDict();
-                        renderErrorStats();
-                        initChecklistSelect();
+                        saveMenuData();
                         nextBuild();
                         alert("Меню успешно загружено из файла! 🎉");
                     } else {
@@ -989,9 +1154,29 @@
             renderDict(document.getElementById('search-bar').value);
         }
 
+        /* Поиск и фильтрация по конкретным ингредиентам */
+        function searchByIngredient(ingName) {
+            const searchBar = document.getElementById('search-bar');
+            searchBar.value = ingName;
+            filterDict();
+        }
+
+        function clearSearch() {
+            const searchBar = document.getElementById('search-bar');
+            searchBar.value = '';
+            filterDict();
+        }
+
         function renderDict(filter = '') {
             const container = document.getElementById('dict-list');
+            const clearBtn = document.getElementById('clear-search-btn');
             container.innerHTML = '';
+
+            if (filter.trim()) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
 
             const filtered = menuData.filter(d => {
                 const matchesSearch = d.name.toLowerCase().includes(filter.toLowerCase()) || 
@@ -1010,12 +1195,20 @@
                     ? `<span class="tag-sauce">🥢 Соус</span>` 
                     : `<span class="tag-dish">🍲 Блюдо</span>`;
 
+                const ingTagsHtml = d.ingredients.map(ing => 
+                    `<span class="ing-tag" onclick="searchByIngredient('${ing}')">${ing}</span>`
+                ).join('');
+
                 const item = document.createElement('div');
                 item.className = 'dict-item';
                 item.innerHTML = `
                     <div class="dict-item-info">
                         <h4>${d.name} ${badge}</h4>
-                        <p><b>Состав:</b> ${d.ingredients.join(', ')}</p>
+                        <div class="dict-ing-tags">${ingTagsHtml}</div>
+                    </div>
+                    <div class="dict-item-actions">
+                        <button class="action-icon-btn" onclick="openEditModal(${d.id})">✏️</button>
+                        <button class="action-icon-btn" onclick="deleteDish(${d.id})">🗑️</button>
                     </div>
                 `;
                 container.appendChild(item);
