@@ -375,18 +375,18 @@
 
         .dict-filters {
             display: flex;
+            flex-wrap: wrap;
             gap: 6px;
             margin-bottom: 12px;
         }
 
         .filter-btn {
-            flex: 1;
             background: #131a2b;
             border: 1px solid var(--card-border);
             color: var(--text-sub);
-            padding: 8px;
+            padding: 6px 10px;
             border-radius: 8px;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             font-weight: 600;
             cursor: pointer;
             text-align: center;
@@ -413,7 +413,6 @@
         .dict-item-info { flex: 1; }
         .dict-item h4 { color: var(--accent-pink); font-size: 0.95rem; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
         
-        /* Кликабельные теги ингредиентов */
         .dict-ing-tags {
             display: flex;
             flex-wrap: wrap;
@@ -451,25 +450,19 @@
             cursor: pointer;
         }
 
-        .tag-sauce {
+        /* Тэги категорий */
+        .cat-tag {
             font-size: 0.68rem;
-            background: #2a2012;
-            color: #f39c12;
-            border: 1px solid #4d3818;
             padding: 2px 6px;
             border-radius: 6px;
             font-weight: normal;
         }
-
-        .tag-dish {
-            font-size: 0.68rem;
-            background: #12222a;
-            color: #38ef7d;
-            border: 1px solid #184d3d;
-            padding: 2px 6px;
-            border-radius: 6px;
-            font-weight: normal;
-        }
+        .tag-starters { background: #2a2012; color: #f1c40f; border: 1px solid #4d3d18; }
+        .tag-soups { background: #2a1218; color: #ff6b81; border: 1px solid #4d1822; }
+        .tag-noodles { background: #12222a; color: #70a1ff; border: 1px solid #18354d; }
+        .tag-mains { background: #122a1c; color: #2ed573; border: 1px solid #184d2b; }
+        .tag-desserts { background: #22122a; color: #eccc68; border: 1px solid #3d184d; }
+        .tag-sauces { background: #1c1c24; color: #a4b0be; border: 1px solid #2f3542; }
 
         .err-badge-count {
             background: #ff475733;
@@ -606,10 +599,17 @@
 
         <div class="overlay-card">
             <h3 style="font-size:1.05rem; margin-bottom:12px; color:#fff;">➕ Добавить новую позицию</h3>
-            <input type="text" class="text-input" id="new-name" placeholder="Название (например: 36. Блюдо)">
+            <input type="text" class="text-input" id="new-name" placeholder="Название блюда">
+            <select class="select-input" id="new-category">
+                <option value="starters">🥗 Закуски и салаты</option>
+                <option value="soups">🍜 Супы</option>
+                <option value="noodles">🥢 Лапша и рис</option>
+                <option value="mains">🥘 Основные блюда</option>
+                <option value="desserts">🍰 Десерты</option>
+                <option value="sauces">🏺 Соусы и заготовки</option>
+            </select>
             <input type="text" class="text-input" id="new-ings" placeholder="Ингредиенты через запятую">
-            <button class="secondary-btn" style="background:#2a2012; color:#f39c12; border-color:#4d3818; margin-bottom:8px;" onclick="addNewDish('sauce')">💾 Добавить как Соус / Заготовку</button>
-            <button class="primary-btn" onclick="addNewDish('dish')">🍲 Добавить как Блюдо</button>
+            <button class="primary-btn" onclick="addNewDish()">Добавить позицию</button>
         </div>
 
         <div class="overlay-card">
@@ -628,8 +628,12 @@
             </div>
             <div class="dict-filters">
                 <button class="filter-btn active" id="f-all" onclick="setDictFilter('all')">Все</button>
-                <button class="filter-btn" id="f-dish" onclick="setDictFilter('dish')">🍲 Блюда</button>
-                <button class="filter-btn" id="f-sauce" onclick="setDictFilter('sauce')">🥢 Соусы</button>
+                <button class="filter-btn" id="f-starters" onclick="setDictFilter('starters')">🥗 Закуски</button>
+                <button class="filter-btn" id="f-soups" onclick="setDictFilter('soups')">🍜 Супы</button>
+                <button class="filter-btn" id="f-noodles" onclick="setDictFilter('noodles')">🥢 Лапша/Рис</button>
+                <button class="filter-btn" id="f-mains" onclick="setDictFilter('mains')">🥘 Основные</button>
+                <button class="filter-btn" id="f-desserts" onclick="setDictFilter('desserts')">🍰 Десерты</button>
+                <button class="filter-btn" id="f-sauces" onclick="setDictFilter('sauces')">🏺 Соусы</button>
             </div>
             <div id="dict-list"></div>
         </div>
@@ -643,9 +647,13 @@
             <input type="text" class="text-input" id="edit-name">
             
             <label style="font-size:0.78rem; color:var(--text-sub); display:block; margin-bottom:4px;">Категория:</label>
-            <select class="select-input" id="edit-type">
-                <option value="dish">🍲 Блюдо</option>
-                <option value="sauce">🥢 Соус / Заготовка</option>
+            <select class="select-input" id="edit-category">
+                <option value="starters">🥗 Закуски и салаты</option>
+                <option value="soups">🍜 Супы</option>
+                <option value="noodles">🥢 Лапша и рис</option>
+                <option value="mains">🥘 Основные блюда</option>
+                <option value="desserts">🍰 Десерты</option>
+                <option value="sauces">🏺 Соусы и заготовки</option>
             </select>
 
             <label style="font-size:0.78rem; color:var(--text-sub); display:block; margin-bottom:4px;">Ингредиенты (через запятую):</label>
@@ -668,6 +676,15 @@
     </div>
 
     <script>
+        const categoryMeta = {
+            starters: { name: "Закуски и салаты", badgeClass: "tag-starters", icon: "🥗" },
+            soups:    { name: "Супы",            badgeClass: "tag-soups",    icon: "🍜" },
+            noodles:  { name: "Лапша и рис",      badgeClass: "tag-noodles",  icon: "🥢" },
+            mains:    { name: "Основные блюда",  badgeClass: "tag-mains",    icon: "🥘" },
+            desserts: { name: "Десерты",         badgeClass: "tag-desserts", icon: "🍰" },
+            sauces:   { name: "Соусы и заготовки", badgeClass: "tag-sauces",  icon: "🏺" }
+        };
+
         function normalizeIng(name) {
             let str = name.trim().toLowerCase();
             const synMap = {
@@ -682,51 +699,54 @@
         }
 
         const rawDefaultMenu = [
-            { id: 1, name: "Салатная заправка", type: "sauce", ingredients: ["устричный соус", "соевый соус", "сахар", "белый рисовый уксус", "чеснок", "имбирь", "зеленый лук", "чили перец"] },
-            { id: 2, name: "Крылышки Сычуаньские", type: "dish", ingredients: ["качудян", "томатная паста", "соевый соус"] },
-            { id: 3, name: "5 специй", type: "sauce", ingredients: ["бадьян", "сычуаньский перец", "корица", "имбирь", "кориандр"] },
-            { id: 4, name: "Рисовый соус", type: "sauce", ingredients: ["кунжутное масло", "устричный соус"] },
-            { id: 5, name: "Чоу-мейн (соус)", type: "sauce", ingredients: ["соевый соус", "устричный соус", "темный соевый соус", "белый рисовый уксус", "кунжутное масло"] },
-            { id: 6, name: "Удон (соус)", type: "sauce", ingredients: ["соевый соус", "устричный соус", "темный соевый соус", "белый рисовый уксус", "кунжутное масло"] },
-            { id: 7, name: "Кисло-сладкий соус", type: "sauce", ingredients: ["белый рисовый уксус", "сахар", "кетчуп", "соевый соус", "ананасовый сок"] },
-            { id: 8, name: "Гун бао соус", type: "sauce", ingredients: ["светлый соевый соус", "темный соевый соус", "сахар", "маласянь", "кунжутное масло", "белый рисовый уксус"] },
-            { id: 9, name: "Цзо соус", type: "sauce", ingredients: ["сахар", "апельсиновый сок", "хойсин", "кетчуп", "светлый соевый соус", "темный соевый соус", "белый рисовый уксус"] },
-            { id: 10, name: "Апельсиновый соус", type: "sauce", ingredients: ["апельсиновый сок", "цедра апельсина", "апельсины", "кунжутное масло", "чеснок", "имбирь"] },
-            { id: 11, name: "Свинина веревочкой", type: "dish", ingredients: ["свинина", "вино шаосиньское", "соевый соус", "бамбук", "морковь", "основания зеленого лука", "чеснок", "имбирь", "муэр", "соус табадзян", "устричный соус"] },
-            { id: 12, name: "Хун шао соус", type: "sauce", ingredients: ["бадьян", "лавровый лист", "корица", "сычуаньский перец горошком", "черный перец горошком", "соевый соус", "темный соевый соус", "вино шаосиньское"] },
-            { id: 13, name: "Пекинская свинина", type: "dish", ingredients: ["свинина 150г", "соус барбекю", "хойсин", "чеснок", "имбирь"] },
-            { id: 14, name: "Говядина в ЧП", type: "dish", ingredients: ["говядина", "морковь", "лук репчатый", "перец болгарский", "брокколи", "мини кукуруза", "фасоль", "соус блэк пеппер"] },
-            { id: 15, name: "Монгольская говядина", type: "dish", ingredients: ["говядина", "морковь", "перец болгарский", "лук репчатый", "сушеный чили перец", "соус чоу-мейн", "зеленый лук перо", "сахар", "вино шаосиньское", "основания зеленого лука"] },
-            { id: 16, name: "Баранина", type: "dish", ingredients: ["баранина", "зира", "кинза", "фиолетовый лук", "соевый соус", "вино"] },
-            { id: 17, name: "Креветки в тайском стиле", type: "dish", ingredients: ["креветки", "листья лайма", "лемонграсс", "чеснок", "имбирь", "тайваньская чили паста", "базилик", "соевый соус"] },
-            { id: 18, name: "Баклажан со свининой", type: "dish", ingredients: ["баклажан", "свинина", "соус табадзян", "чеснок", "имбирь", "сахар", "вино шаосиньское"] },
-            { id: 19, name: "Пикантный баклажан", type: "dish", ingredients: ["баклажан", "соевый соус темный", "соевый соус светлый", "белый рисовый уксус", "сахар"] },
-            { id: 20, name: "Тофу по-домашнему", type: "dish", ingredients: ["тофу", "основания зеленого лука", "морковь", "болгарский перец", "шиитаке", "муэр", "соус юсянь"] },
-            { id: 21, name: "Три земных свежести", type: "dish", ingredients: ["картофель/перец/баклажан", "соус маласянь", "устричный соус", "сахар"] },
-            { id: 22, name: "Битые огурцы с кешью", type: "dish", ingredients: ["битые огурцы", "кинза", "кешью", "соевый соус"] },
-            { id: 23, name: "Салат с древесными грибами", type: "dish", ingredients: ["древесные грибы", "огурец", "морковь", "кинза", "чеснок", "соевый соус"] },
-            { id: 24, name: "Салат из фуджу с овощами", type: "dish", ingredients: ["кинза", "морковка", "китайская соевая спаржа", "древесные грибы", "огурец"] },
-            { id: 25, name: "Паровые булочки бао со свининой", type: "dish", ingredients: ["пшеничное тесто", "свинина", "лук", "морковь"] },
-            { id: 26, name: "Хрустящие креветки с кисло-сладким соусом", type: "dish", ingredients: ["креветки панко", "соус свитчили"] },
-            { id: 27, name: "Дзяо дзы", type: "dish", ingredients: ["свинина/креветка на пару или жаренные", "соевый соус"] },
-            { id: 28, name: "Китайская луковая лепёшка", type: "dish", ingredients: ["лепёшка", "зеленый лук"] },
-            { id: 29, name: "Чайна фри", type: "dish", ingredients: ["картофель фри", "китайские специи", "имбирь", "чеснок", "чили перец", "зеленый лук"] },
-            { id: 30, name: "Суп с вонтонами", type: "dish", ingredients: ["куриный бульон", "вонтоны из свино-говяжьего фарша", "зеленый лук"] },
-            { id: 31, name: "Сычуаньский острый суп с говядиной", type: "dish", ingredients: ["лапша", "говядина", "маринованное яйцо", "говяжий бульон"] },
-            { id: 32, name: "Суп с говядиной и лапшой по-тайваньски", type: "dish", ingredients: ["японский удон", "говядина", "проростки", "шпинат"] },
-            { id: 33, name: "Малазийская лакса", type: "dish", ingredients: ["курица", "креветка", "яйцо", "овощи", "лапша", "карри"] },
-            { id: 34, name: "Хайнаньский суп с креветками", type: "dish", ingredients: ["кокосовый бульон", "лемонграсс", "чили перец", "креветки", "грибы", "помидоры черри", "лапша", "рыбное масло"] },
-            { id: 35, name: "Рёбрышки чар сиу с коу-слоу", type: "dish", ingredients: ["рёбра", "глазурь", "салат коу-слоу"] }
+            { category: "starters", name: "Битые огурцы с кешью", ingredients: ["битые огурцы", "кинза", "кешью", "соевый соус"] },
+            { category: "starters", name: "Салат с древесными грибами", ingredients: ["древесные грибы", "огурец", "морковь", "кинза", "чеснок", "соевый соус"] },
+            { category: "starters", name: "Салат из фуджу с овощами", ingredients: ["кинза", "морковка", "китайская соевая спаржа", "древесные грибы", "огурец"] },
+            { category: "starters", name: "Паровые булочки бао со свининой", ingredients: ["пшеничное тесто", "свинина", "лук", "морковь"] },
+            { category: "starters", name: "Хрустящие креветки с кисло-сладким соусом", ingredients: ["креветки панко", "соус свитчили"] },
+            { category: "starters", name: "Дзяо дзы", ingredients: ["свинина/креветка на пару или жаренные", "соевый соус"] },
+            { category: "starters", name: "Китайская луковая лепёшка", ingredients: ["лепёшка", "зеленый лук"] },
+            { category: "starters", name: "Чайна фри", ingredients: ["картофель фри", "китайские специи", "имбирь", "чеснок", "чили перец", "зеленый лук"] },
+            { category: "soups", name: "Суп с вонтонами", ingredients: ["куриный бульон", "вонтоны из свино-говяжьего фарша", "зеленый лук"] },
+            { category: "soups", name: "Сычуаньский острый суп с говядиной", ingredients: ["лапша", "говядина", "маринованное яйцо", "говяжий бульон"] },
+            { category: "soups", name: "Суп с говядиной и лапшой по-тайваньски", ingredients: ["японский удон", "говядина", "проростки", "шпинат"] },
+            { category: "soups", name: "Малазийская лакса", ingredients: ["курица", "креветка", "яйцо", "овощи", "лапша", "карри"] },
+            { category: "soups", name: "Хайнаньский суп с креветками", ingredients: ["кокосовый бульон", "лемонграсс", "чили перец", "креветки", "грибы", "помидоры черри", "лапша", "рыбное масло"] },
+            { category: "mains", name: "Крылышки Сычуаньские", ingredients: ["качудян", "томатная паста", "соевый соус"] },
+            { category: "mains", name: "Свинина веревочкой", ingredients: ["свинина", "вино шаосиньское", "соевый соус", "бамбук", "морковь", "основания зеленого лука", "чеснок", "имбирь", "муэр", "соус табадзян", "устричный соус"] },
+            { category: "mains", name: "Пекинская свинина", ingredients: ["свинина 150г", "соус барбекю", "хойсин", "чеснок", "имбирь"] },
+            { category: "mains", name: "Говядина в ЧП", ingredients: ["говядина", "морковь", "лук репчатый", "перец болгарский", "брокколи", "мини кукуруза", "фасоль", "соус блэк пеппер"] },
+            { category: "mains", name: "Монгольская говядина", ingredients: ["говядина", "морковь", "перец болгарский", "лук репчатый", "сушеный чили перец", "соус чоу-мейн", "зеленый лук перо", "сахар", "вино шаосиньское", "основания зеленого лука"] },
+            { category: "mains", name: "Баранина", ingredients: ["баранина", "зира", "кинза", "фиолетовый лук", "соевый соус", "вино"] },
+            { category: "mains", name: "Креветки в тайском стиле", ingredients: ["креветки", "листья лайма", "лемонграсс", "чеснок", "имбирь", "тайваньская чили паста", "базилик", "соевый соус"] },
+            { category: "mains", name: "Баклажан со свининой", ingredients: ["баклажан", "свинина", "соус табадзян", "чеснок", "имбирь", "сахар", "вино шаосиньское"] },
+            { category: "mains", name: "Пикантный баклажан", ingredients: ["баклажан", "соевый соус темный", "соевый соус светлый", "белый рисовый уксус", "сахар"] },
+            { category: "mains", name: "Тофу по-домашнему", ingredients: ["тофу", "основания зеленого лука", "морковь", "болгарский перец", "шиитаке", "муэр", "соус юсянь"] },
+            { category: "mains", name: "Три земных свежести", ingredients: ["картофель/перец/баклажан", "соус маласянь", "устричный соус", "сахар"] },
+            { category: "mains", name: "Рёбрышки чар сиу с коу-слоу", ingredients: ["рёбра", "глазурь", "салат коу-слоу"] },
+            { category: "sauces", name: "Салатная заправка", ingredients: ["устричный соус", "соевый соус", "сахар", "белый рисовый уксус", "чеснок", "имбирь", "зеленый лук", "чили перец"] },
+            { category: "sauces", name: "5 специй", ingredients: ["бадьян", "сычуаньский перец", "корица", "имбирь", "кориандр"] },
+            { category: "sauces", name: "Рисовый соус", ingredients: ["кунжутное масло", "устричный соус"] },
+            { category: "sauces", name: "Чоу-мейн (соус)", ingredients: ["соевый соус", "устричный соус", "темный соевый соус", "белый рисовый уксус", "кунжутное масло"] },
+            { category: "sauces", name: "Удон (соус)", ingredients: ["соевый соус", "устричный соус", "темный соевый соус", "белый рисовый уксус", "кунжутное масло"] },
+            { category: "sauces", name: "Кисло-сладкий соус", ingredients: ["белый рисовый уксус", "сахар", "кетчуп", "соевый соус", "ананасовый сок"] },
+            { category: "sauces", name: "Гун бао соус", ingredients: ["светлый соевый соус", "темный соевый соус", "сахар", "маласянь", "кунжутное масло", "белый рисовый уксус"] },
+            { category: "sauces", name: "Цзо соус", ingredients: ["сахар", "апельсиновый сок", "хойсин", "кетчуп", "светлый соевый соус", "темный соевый соус", "белый рисовый уксус"] },
+            { category: "sauces", name: "Апельсиновый соус", ingredients: ["апельсиновый сок", "цедра апельсина", "апельсины", "кунжутное масло", "чеснок", "имбирь"] },
+            { category: "sauces", name: "Хун шао соус", ingredients: ["бадьян", "лавровый лист", "корица", "сычуаньский перец горошком", "черный перец горошком", "соевый соус", "темный соевый соус", "вино шаосиньское"] }
         ];
 
-        const defaultMenu = rawDefaultMenu.map((d, index) => ({
-            id: index + 1,
-            name: `${index + 1}. ${d.name.replace(/^\d+\.\s*/, '')}`,
-            type: d.type || 'dish',
-            ingredients: Array.from(new Set(d.ingredients.map(normalizeIng)))
-        }));
+        let menuData = JSON.parse(localStorage.getItem('customMenuData')) || rawDefaultMenu;
+        
+        // Переиндексация с автонумерацией
+        function syncAutoNumbers() {
+            menuData.forEach((d, idx) => {
+                d.id = idx + 1;
+                let cleanName = d.name.replace(/^\d+\.\s*/, '');
+                d.displayName = `${d.id}. ${cleanName}`;
+            });
+        }
 
-        let menuData = JSON.parse(localStorage.getItem('customMenuData')) || defaultMenu;
         let allIngredients = [];
         let questionCounter = 1;
         let currentDictFilter = 'all';
@@ -747,6 +767,7 @@
         let onlyErrorsMode = false;
 
         function init() {
+            syncAutoNumbers();
             refreshIngredients();
             updateStats();
             renderDict();
@@ -789,7 +810,7 @@
             }
 
             currentDish = pool[Math.floor(Math.random() * pool.length)];
-            document.getElementById('build-dish-title').textContent = currentDish.name;
+            document.getElementById('build-dish-title').textContent = currentDish.displayName;
 
             const correct = currentDish.ingredients;
             const wrongCandidates = allIngredients.filter(i => !correct.includes(i));
@@ -902,7 +923,7 @@
             }
 
             tfCurrent = { dish, ingredient, isTrue: shouldBeTrue };
-            document.getElementById('tf-dish-title').textContent = dish.name;
+            document.getElementById('tf-dish-title').textContent = dish.displayName;
             document.getElementById('tf-question-text').innerHTML = `Входит ли <highlight>"${ingredient}"</highlight> в этот состав?`;
         }
 
@@ -930,7 +951,7 @@
             menuData.forEach(d => {
                 const opt = document.createElement('option');
                 opt.value = d.id;
-                opt.textContent = d.name;
+                opt.textContent = d.displayName;
                 select.appendChild(opt);
             });
             if (menuData.length > 0) loadChecklist();
@@ -968,15 +989,16 @@
             });
         }
 
-        function addNewDish(type) {
+        function addNewDish() {
             const name = document.getElementById('new-name').value.trim();
+            const category = document.getElementById('new-category').value;
             const ings = document.getElementById('new-ings').value.trim();
             if (!name || !ings) return alert("Заполните название и состав!");
 
             const ingredients = ings.split(',').map(i => normalizeIng(i)).filter(i => i);
-            const newId = menuData.length > 0 ? Math.max(...menuData.map(d => d.id)) + 1 : 1;
+            const cleanName = name.replace(/^\d+\.\s*/, '');
 
-            menuData.push({ id: newId, name: `${newId}. ${name.replace(/^\d+\.\s*/, '')}`, type: type, ingredients });
+            menuData.push({ category: category, name: cleanName, ingredients });
             saveMenuData();
             document.getElementById('new-name').value = '';
             document.getElementById('new-ings').value = '';
@@ -987,8 +1009,8 @@
             const dish = menuData.find(d => d.id === id);
             if (!dish) return;
             editingDishId = id;
-            document.getElementById('edit-name').value = dish.name;
-            document.getElementById('edit-type').value = dish.type || 'dish';
+            document.getElementById('edit-name').value = dish.name.replace(/^\d+\.\s*/, '');
+            document.getElementById('edit-category').value = dish.category || 'mains';
             document.getElementById('edit-ings').value = dish.ingredients.join(', ');
             document.getElementById('edit-modal').classList.remove('hidden');
         }
@@ -1004,13 +1026,13 @@
             if (!dish) return;
 
             const newName = document.getElementById('edit-name').value.trim();
-            const newType = document.getElementById('edit-type').value;
+            const newCategory = document.getElementById('edit-category').value;
             const newIngsStr = document.getElementById('edit-ings').value.trim();
 
             if (!newName || !newIngsStr) return alert("Заполните все поля!");
 
-            dish.name = newName;
-            dish.type = newType;
+            dish.name = newName.replace(/^\d+\.\s*/, '');
+            dish.category = newCategory;
             dish.ingredients = Array.from(new Set(newIngsStr.split(',').map(i => normalizeIng(i)).filter(i => i)));
 
             saveMenuData();
@@ -1020,7 +1042,7 @@
         function deleteDish(id) {
             const dish = menuData.find(d => d.id === id);
             if (!dish) return;
-            if (confirm(`Удалить позицию "${dish.name}"?`)) {
+            if (confirm(`Удалить позицию "${dish.displayName}"?`)) {
                 menuData = menuData.filter(d => d.id !== id);
                 delete errorCounts[id];
                 errorList = errorList.filter(eId => eId !== id);
@@ -1029,6 +1051,7 @@
         }
 
         function saveMenuData() {
+            syncAutoNumbers();
             localStorage.setItem('customMenuData', JSON.stringify(menuData));
             localStorage.setItem('errorList', JSON.stringify(errorList));
             localStorage.setItem('errorCounts', JSON.stringify(errorCounts));
@@ -1138,7 +1161,7 @@
                 item.className = 'dict-item';
                 item.innerHTML = `
                     <div class="dict-item-info">
-                        <h4>${dish.name}</h4>
+                        <h4>${dish.displayName}</h4>
                         <p>Ошибок допущено: <b>${count} раз(а)</b></p>
                     </div>
                     <div class="err-badge-count">⚠️ ${count}</div>
@@ -1154,7 +1177,6 @@
             renderDict(document.getElementById('search-bar').value);
         }
 
-        /* Поиск и фильтрация по конкретным ингредиентам */
         function searchByIngredient(ingName) {
             const searchBar = document.getElementById('search-bar');
             searchBar.value = ingName;
@@ -1179,10 +1201,10 @@
             }
 
             const filtered = menuData.filter(d => {
-                const matchesSearch = d.name.toLowerCase().includes(filter.toLowerCase()) || 
+                const matchesSearch = d.displayName.toLowerCase().includes(filter.toLowerCase()) || 
                                       d.ingredients.some(i => i.toLowerCase().includes(filter.toLowerCase()));
-                const matchesType = currentDictFilter === 'all' || d.type === currentDictFilter;
-                return matchesSearch && matchesType;
+                const matchesCategory = currentDictFilter === 'all' || d.category === currentDictFilter;
+                return matchesSearch && matchesCategory;
             });
 
             if (filtered.length === 0) {
@@ -1191,9 +1213,8 @@
             }
 
             filtered.forEach(d => {
-                const badge = d.type === 'sauce' 
-                    ? `<span class="tag-sauce">🥢 Соус</span>` 
-                    : `<span class="tag-dish">🍲 Блюдо</span>`;
+                const cat = categoryMeta[d.category] || categoryMeta.mains;
+                const badge = `<span class="cat-tag ${cat.badgeClass}">${cat.icon} ${cat.name}</span>`;
 
                 const ingTagsHtml = d.ingredients.map(ing => 
                     `<span class="ing-tag" onclick="searchByIngredient('${ing}')">${ing}</span>`
@@ -1203,7 +1224,7 @@
                 item.className = 'dict-item';
                 item.innerHTML = `
                     <div class="dict-item-info">
-                        <h4>${d.name} ${badge}</h4>
+                        <h4>${d.displayName} ${badge}</h4>
                         <div class="dict-ing-tags">${ingTagsHtml}</div>
                     </div>
                     <div class="dict-item-actions">
