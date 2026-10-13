@@ -601,7 +601,7 @@
         </div>
     </div>
 
-    <!-- Режимы тренажера -->
+    <!-- Режимы и вкладки включая Справочник 📖 -->
     <div class="modes-nav">
         <button class="mode-tab active" id="tab-build" onclick="switchTab('build')">
             <span>🎯 Сбор</span>
@@ -614,6 +614,10 @@
         <button class="mode-tab" id="tab-checklist" onclick="switchTab('checklist')">
             <span>📝 Чек-лист по</span>
             <span>блюду</span>
+        </button>
+        <button class="mode-tab" id="tab-dict" onclick="switchTab('dict')">
+            <span>📖 Справочник</span>
+            <span>и поиск</span>
         </button>
     </div>
 
@@ -657,6 +661,26 @@
         </div>
     </div>
 
+    <!-- ВКЛАДКА СПРАВОЧНИКА С ПОИСКОМ И КАТЕГОРИЯМИ -->
+    <div id="view-dict" class="hidden">
+        <div class="overlay-card">
+            <div class="search-container">
+                <input type="text" class="search-input" id="search-bar" placeholder="Поиск по названию или ингредиенту..." oninput="filterDict()">
+                <button class="clear-search-btn hidden" id="clear-search-btn" onclick="clearSearch()">✖</button>
+            </div>
+            <div class="dict-filters">
+                <button class="filter-btn active" id="f-all" onclick="setDictFilter('all')">Все</button>
+                <button class="filter-btn" id="f-starters" onclick="setDictFilter('starters')">🥗 Закуски</button>
+                <button class="filter-btn" id="f-soups" onclick="setDictFilter('soups')">🍜 Супы</button>
+                <button class="filter-btn" id="f-noodles" onclick="setDictFilter('noodles')">🥢 Лапша/Рис</button>
+                <button class="filter-btn" id="f-mains" onclick="setDictFilter('mains')">🥘 Основные</button>
+                <button class="filter-btn" id="f-desserts" onclick="setDictFilter('desserts')">🍰 Десерты</button>
+                <button class="filter-btn" id="f-sauces" onclick="setDictFilter('sauces')">🏺 Соусы</button>
+            </div>
+            <div id="dict-list"></div>
+        </div>
+    </div>
+
     <!-- ВЫДВИЖНАЯ ШТОРКА (АДМИНКА) -->
     <div class="drawer-backdrop" id="drawer-backdrop" onclick="toggleAdminDrawer()"></div>
     <div class="admin-drawer" id="admin-drawer">
@@ -690,11 +714,6 @@
             <h3 style="font-size:0.95rem; margin-bottom:10px; color:#ff4757;">📊 Топ ваших ошибок</h3>
             <div id="stats-errors-list"><p style="color:var(--text-sub); font-size:0.8rem;">Пока нет ошибок. 🎉</p></div>
         </div>
-    </div>
-
-    <!-- Вкладка справочника с поиском по блюдам прямо на главном экране -->
-    <div id="view-dict" class="hidden">
-        <!-- Сюда при необходимости можно вынести просмотр каталога, если нужен отдельный режим -->
     </div>
 
     <div id="edit-modal" class="modal-overlay hidden">
@@ -816,6 +835,7 @@
 
         let allIngredients = [];
         let questionCounter = 1;
+        let currentDictFilter = 'all';
         let editingDishId = null;
 
         function refreshIngredients() {
@@ -836,6 +856,7 @@
             sortMenu();
             refreshIngredients();
             updateStats();
+            renderDict();
             renderErrorStats();
             initChecklistSelect();
             nextBuild();
@@ -852,7 +873,7 @@
 
         function switchTab(tab) {
             document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
-            ['build', 'tf', 'checklist'].forEach(v => {
+            ['build', 'tf', 'checklist', 'dict'].forEach(v => {
                 let el = document.getElementById('view-' + v);
                 if (el) el.classList.add('hidden');
             });
@@ -861,6 +882,7 @@
             if (tabEl) tabEl.classList.add('active');
             let viewEl = document.getElementById('view-' + tab);
             if (viewEl) viewEl.classList.remove('hidden');
+            if (tab === 'dict') renderDict();
         }
 
         function nextBuild() {
@@ -1099,6 +1121,61 @@
             alert("Позиция успешно добавлена!");
         }
 
+        function openEditModal(id) {
+            const dish = menuData.find(d => d.id === id);
+            if (!dish) return;
+            editingDishId = id;
+            let eName = document.getElementById('edit-name');
+            let eCat = document.getElementById('edit-category');
+            let eIngs = document.getElementById('edit-ings');
+            let eModal = document.getElementById('edit-modal');
+            if (eName) eName.value = dish.name;
+            if (eCat) eCat.value = dish.category || 'mains';
+            if (eIngs) eIngs.value = (dish.ingredients || []).join(', ');
+            if (eModal) eModal.classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            editingDishId = null;
+            let eModal = document.getElementById('edit-modal');
+            if (eModal) eModal.classList.add('hidden');
+        }
+
+        function saveEditedDish() {
+            if (!editingDishId) return;
+            const dish = menuData.find(d => d.id === editingDishId);
+            if (!dish) return;
+
+            let eName = document.getElementById('edit-name');
+            let eCat = document.getElementById('edit-category');
+            let eIngs = document.getElementById('edit-ings');
+            if (!eName || !eCat || !eIngs) return;
+
+            const newName = eName.value.trim();
+            const newCategory = eCat.value;
+            const newIngsStr = eIngs.value.trim();
+
+            if (!newName || !newIngsStr) return alert("Заполните все поля!");
+
+            dish.name = newName;
+            dish.category = newCategory;
+            dish.ingredients = Array.from(new Set(newIngsStr.split(',').map(i => normalizeIng(i)).filter(i => i)));
+
+            saveMenuData();
+            closeEditModal();
+        }
+
+        function deleteDish(id) {
+            const dish = menuData.find(d => d.id === id);
+            if (!dish) return;
+            if (confirm(`Удалить позицию "${dish.displayName}"?`)) {
+                menuData = menuData.filter(d => d.id !== id);
+                delete errorCounts[id];
+                errorList = errorList.filter(eId => eId !== id);
+                saveMenuData();
+            }
+        }
+
         function saveMenuData() {
             sortMenu();
             try {
@@ -1108,6 +1185,7 @@
             } catch (e) {}
             refreshIngredients();
             updateStats();
+            renderDict();
             renderErrorStats();
             initChecklistSelect();
         }
@@ -1228,6 +1306,84 @@
                 `;
                 container.appendChild(item);
             });
+        }
+
+        function setDictFilter(filter) {
+            currentDictFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            let btn = document.getElementById('f-' + filter);
+            if (btn) btn.classList.add('active');
+            let sb = document.getElementById('search-bar');
+            renderDict(sb ? sb.value : '');
+        }
+
+        function searchByIngredient(ingName) {
+            const searchBar = document.getElementById('search-bar');
+            if (searchBar) {
+                searchBar.value = ingName;
+                filterDict();
+            }
+        }
+
+        function clearSearch() {
+            const searchBar = document.getElementById('search-bar');
+            if (searchBar) {
+                searchBar.value = '';
+                filterDict();
+            }
+        }
+
+        function renderDict(filter = '') {
+            const container = document.getElementById('dict-list');
+            const clearBtn = document.getElementById('clear-search-btn');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (clearBtn) {
+                if (filter.trim()) clearBtn.classList.remove('hidden');
+                else clearBtn.classList.add('hidden');
+            }
+
+            const filtered = menuData.filter(d => {
+                const matchesSearch = d.displayName.toLowerCase().includes(filter.toLowerCase()) || 
+                                      (d.ingredients || []).some(i => i.toLowerCase().includes(filter.toLowerCase()));
+                const matchesCategory = currentDictFilter === 'all' || d.category === currentDictFilter;
+                return matchesSearch && matchesCategory;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<p style="color:var(--text-sub); font-size:0.85rem; text-align:center; padding:10px;">Ничего не найдено</p>`;
+                return;
+            }
+
+            filtered.forEach(d => {
+                const cat = categoryMeta[d.category] || categoryMeta.mains;
+                const badge = `<span class="cat-tag ${cat.badgeClass}">${cat.icon} ${cat.name}</span>`;
+
+                const ingTagsHtml = (d.ingredients || []).map(ing => 
+                    `<span class="ing-tag" onclick="searchByIngredient('${ing}')">${ing}</span>`
+                ).join('');
+
+                const item = document.createElement('div');
+                item.className = 'dict-item';
+                item.innerHTML = `
+                    <div class="dict-item-info">
+                        <h4>${d.displayName} ${badge}</h4>
+                        <div class="dict-ing-tags">${ingTagsHtml}</div>
+                    </div>
+                    <div class="dict-item-actions">
+                        <button class="action-icon-btn" onclick="openEditModal(${d.id})">✏️</button>
+                        <button class="action-icon-btn">🗑️</button>
+                    </div>
+                `;
+                item.querySelector('.action-icon-btn:last-child').onclick = () => deleteDish(d.id);
+                container.appendChild(item);
+            });
+        }
+
+        function filterDict() {
+            let sb = document.getElementById('search-bar');
+            renderDict(sb ? sb.value : '');
         }
 
         window.addEventListener('DOMContentLoaded', init);
