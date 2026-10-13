@@ -1164,4 +1164,159 @@
             } else {
                 streak = 0;
                 if (!errorList.includes(dishId)) errorList.push(dishId);
-                errorCounts[dishId] = (error
+                errorCounts[dishId] = (errorCounts[dishId] || 0) + 1;
+            }
+            try {
+                localStorage.setItem('errorList', JSON.stringify(errorList));
+                localStorage.setItem('errorCounts', JSON.stringify(errorCounts));
+            } catch (e) {}
+            updateStats();
+            renderErrorStats();
+        }
+
+        function updateStats() {
+            let sVal = document.getElementById('streak-val');
+            let mVal = document.getElementById('max-val');
+            let eCount = document.getElementById('err-count');
+            let subCount = document.getElementById('subtitle-count');
+            if (sVal) sVal.textContent = streak;
+            if (mVal) mVal.textContent = maxStreak;
+            if (eCount) eCount.textContent = errorList.length;
+            if (subCount) subCount.textContent = `Азиатская кухня • ${menuData.length} позиций`;
+        }
+
+        function toggleErrorFilter() {
+            if (errorList.length === 0) return alert("У вас пока нет ошибочных позиций!");
+            onlyErrorsMode = !onlyErrorsMode;
+            alert(onlyErrorsMode ? "Включен режим повторения ошибок!" : "Режим всех блюд активирован.");
+            nextBuild();
+        }
+
+        function resetStats() {
+            if (confirm("Сбросить статистику серии, список и счётчики ошибок?")) {
+                streak = 0;
+                maxStreak = 0;
+                errorList = [];
+                errorCounts = {};
+                menuData = JSON.parse(JSON.stringify(rawDefaultMenu));
+                try {
+                    localStorage.removeItem('errorList');
+                    localStorage.removeItem('errorCounts');
+                    localStorage.removeItem('maxStreak');
+                    localStorage.removeItem('customMenuData');
+                } catch (e) {}
+                init();
+                alert("Всё сброшено к стандартному списку!");
+            }
+        }
+
+        function renderErrorStats() {
+            const container = document.getElementById('stats-errors-list');
+            if (!container) return;
+            const sortedErrors = Object.entries(errorCounts).sort((a, b) => b[1] - a[1]);
+
+            if (sortedErrors.length === 0) {
+                container.innerHTML = `<p style="color:var(--text-sub); font-size:0.85rem;">Пока нет ошибок. Отличный результат! 🎉</p>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            sortedErrors.forEach(([dishId, count]) => {
+                const dish = menuData.find(d => d.id == dishId);
+                if (!dish) return;
+
+                const item = document.createElement('div');
+                item.className = 'dict-item';
+                item.innerHTML = `
+                    <div class="dict-item-info">
+                        <h4>${dish.displayName}</h4>
+                        <p>Ошибок допущено: <b>${count} раз(а)</b></p>
+                    </div>
+                    <div class="err-badge-count">⚠️ ${count}</div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function setDictFilter(filter) {
+            currentDictFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            let btn = document.getElementById('f-' + filter);
+            if (btn) btn.classList.add('active');
+            let sb = document.getElementById('search-bar');
+            renderDict(sb ? sb.value : '');
+        }
+
+        function searchByIngredient(ingName) {
+            const searchBar = document.getElementById('search-bar');
+            if (searchBar) {
+                searchBar.value = ingName;
+                filterDict();
+            }
+        }
+
+        function clearSearch() {
+            const searchBar = document.getElementById('search-bar');
+            if (searchBar) {
+                searchBar.value = '';
+                filterDict();
+            }
+        }
+
+        function renderDict(filter = '') {
+            const container = document.getElementById('dict-list');
+            const clearBtn = document.getElementById('clear-search-btn');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (clearBtn) {
+                if (filter.trim()) clearBtn.classList.remove('hidden');
+                else clearBtn.classList.add('hidden');
+            }
+
+            const filtered = menuData.filter(d => {
+                const matchesSearch = d.displayName.toLowerCase().includes(filter.toLowerCase()) || 
+                                      (d.ingredients || []).some(i => i.toLowerCase().includes(filter.toLowerCase()));
+                const matchesCategory = currentDictFilter === 'all' || d.category === currentDictFilter;
+                return matchesSearch && matchesCategory;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<p style="color:var(--text-sub); font-size:0.85rem; text-align:center; padding:10px;">Ничего не найдено</p>`;
+                return;
+            }
+
+            filtered.forEach(d => {
+                const cat = categoryMeta[d.category] || categoryMeta.mains;
+                const badge = `<span class="cat-tag ${cat.badgeClass}">${cat.icon} ${cat.name}</span>`;
+
+                const ingTagsHtml = (d.ingredients || []).map(ing => 
+                    `<span class="ing-tag" onclick="searchByIngredient('${ing}')">${ing}</span>`
+                ).join('');
+
+                const item = document.createElement('div');
+                item.className = 'dict-item';
+                item.innerHTML = `
+                    <div class="dict-item-info">
+                        <h4>${d.displayName} ${badge}</h4>
+                        <div class="dict-ing-tags">${ingTagsHtml}</div>
+                    </div>
+                    <div class="dict-item-actions">
+                        <button class="action-icon-btn" onclick="openEditModal(${d.id})">✏️</button>
+                        <button class="action-icon-btn" onclick="deleteDish(${d.id})">🗑️</button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function filterDict() {
+            let sb = document.getElementById('search-bar');
+            renderDict(sb ? sb.value : '');
+        }
+
+        // Запуск при загрузке DOM
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
