@@ -43,7 +43,6 @@
             margin: 0 auto;
         }
 
-        /* Шапка приложения */
         .app-header {
             display: flex;
             align-items: center;
@@ -102,9 +101,7 @@
             color: #38ef7d;
         }
 
-        .streak-pill span {
-            color: #7a8b9e;
-        }
+        .streak-pill span { color: #7a8b9e; }
 
         .dict-icon-btn {
             background: #111a2e;
@@ -119,7 +116,6 @@
             font-size: 1rem;
         }
 
-        /* Панель режимов */
         .modes-nav {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -156,7 +152,6 @@
             box-shadow: 0 4px 15px rgba(255, 42, 85, 0.4);
         }
 
-        /* Главная карточка вопроса */
         .question-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -208,11 +203,8 @@
             line-height: 1.4;
         }
 
-        .question-desc b {
-            color: #fff;
-        }
+        .question-desc b { color: #fff; }
 
-        /* Варианты ингредиентов (Чипсы) */
         .chips-container {
             display: flex;
             flex-wrap: wrap;
@@ -240,7 +232,6 @@
             box-shadow: 0 0 10px rgba(255, 42, 85, 0.2);
         }
 
-        /* Подсвечивание при проверке */
         .chip.correct {
             background: #0f3822 !important;
             border-color: var(--green) !important;
@@ -261,7 +252,6 @@
             font-weight: bold;
         }
 
-        /* Развернутая текстовая обратная связь */
         .feedback-box {
             background: #131a2b;
             border-radius: 12px;
@@ -297,7 +287,6 @@
         .feedback-detail b.missed-txt { color: var(--missed-yellow); }
         .feedback-detail b.extra-txt { color: var(--accent-pink); }
 
-        /* Кнопка действия */
         .primary-btn {
             width: 100%;
             background: var(--accent-pink);
@@ -312,11 +301,8 @@
             box-shadow: 0 4px 15px rgba(255, 42, 85, 0.3);
         }
 
-        .primary-btn:active {
-            transform: scale(0.98);
-        }
+        .primary-btn:active { transform: scale(0.98); }
 
-        /* Нижние ссылки управления */
         .bottom-actions {
             display: flex;
             justify-content: space-between;
@@ -326,17 +312,8 @@
             margin-bottom: 30px;
         }
 
-        .errors-link {
-            color: #f39c12;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .reset-link {
-            color: var(--text-sub);
-            text-decoration: underline;
-            cursor: pointer;
-        }
+        .errors-link { color: #f39c12; cursor: pointer; }
+        .reset-link { color: var(--text-sub); text-decoration: underline; cursor: pointer; }
 
         .footer-note {
             text-align: center;
@@ -346,7 +323,6 @@
             padding-bottom: 10px;
         }
 
-        /* Модалка / Вкладка справочника и редактора */
         .overlay-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -372,48 +348,32 @@
             padding: 12px 14px;
             margin-bottom: 10px;
             border: 1px solid var(--card-border);
-        }
-
-        .dict-item h4 {
-            color: var(--accent-pink);
-            font-size: 0.95rem;
-            margin-bottom: 4px;
-        }
-
-        .dict-item p {
-            color: var(--text-sub);
-            font-size: 0.82rem;
-            line-height: 1.4;
-        }
-
-        .tf-question {
-            font-size: 1.1rem;
-            text-align: center;
-            margin: 20px 0;
-            line-height: 1.5;
-        }
-
-        .tf-question highlight {
-            color: #eccc68;
-            font-weight: bold;
-        }
-
-        .tf-buttons {
             display: flex;
-            gap: 12px;
-            margin-top: 15px;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .tf-btn {
-            flex: 1;
-            padding: 14px;
-            border-radius: 12px;
-            border: none;
+        .dict-item-info { flex: 1; }
+        .dict-item h4 { color: var(--accent-pink); font-size: 0.95rem; margin-bottom: 4px; }
+        .dict-item p { color: var(--text-sub); font-size: 0.82rem; line-height: 1.4; }
+
+        .err-badge-count {
+            background: #ff475733;
+            color: #ff4757;
+            border: 1px solid #ff4757;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.75rem;
             font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
+            white-space: nowrap;
+            margin-left: 10px;
         }
 
+        .tf-question { font-size: 1.1rem; text-align: center; margin: 20px 0; line-height: 1.5; }
+        .tf-question highlight { color: #eccc68; font-weight: bold; }
+
+        .tf-buttons { display: flex; gap: 12px; margin-top: 15px; }
+        .tf-btn { flex: 1; padding: 14px; border-radius: 12px; border: none; font-weight: bold; font-size: 1rem; cursor: pointer; }
         .tf-btn.yes { background: var(--green); color: #000; }
         .tf-btn.no { background: var(--accent-pink); color: #fff; }
 
@@ -422,7 +382,6 @@
 </head>
 <body>
 
-    <!-- Шапка -->
     <div class="app-header">
         <div class="header-left">
             <div class="app-icon">🥢</div>
@@ -432,12 +391,11 @@
             </div>
         </div>
         <div class="header-right">
-            <div class="streak-pill">🔥 <span id="streak-val">1</span> <span>|</span> <span id="max-val" style="color:#2ed573">1</span></div>
+            <div class="streak-pill">🔥 <span id="streak-val">0</span> <span>|</span> <span id="max-val" style="color:#2ed573">0</span></div>
             <div class="dict-icon-btn" onclick="toggleDict()">📖</div>
         </div>
     </div>
 
-    <!-- Вкладки режимов -->
     <div class="modes-nav">
         <button class="mode-tab active" id="tab-build" onclick="switchTab('build')">
             <span>🎯 Сбор</span>
@@ -453,7 +411,6 @@
         </button>
     </div>
 
-    <!-- 1. РЕЖИМ: СБОР СОСТАВА -->
     <div id="view-build">
         <div class="question-card">
             <div class="card-top-bar">
@@ -472,7 +429,6 @@
         </div>
     </div>
 
-    <!-- 2. РЕЖИМ: ПРАВДА ИЛИ ЛОЖЬ -->
     <div id="view-tf" class="hidden">
         <div class="question-card">
             <div class="dish-header" id="tf-dish-title">Загрузка...</div>
@@ -486,7 +442,6 @@
         </div>
     </div>
 
-    <!-- 3. РЕЖИМ: ЧЕК-ЛИСТ -->
     <div id="view-checklist" class="hidden">
         <div class="question-card">
             <label style="font-size:0.8rem; color:var(--text-sub); display:block; margin-bottom:8px;">Выберите блюдо для самопроверки:</label>
@@ -496,8 +451,12 @@
         </div>
     </div>
 
-    <!-- 4. ЭКРАН: СПРАВОЧНИК И РЕДАКТОР -->
     <div id="view-dict" class="hidden">
+        <div class="overlay-card">
+            <h3 style="font-size:1.05rem; margin-bottom:12px; color:#ff4757;">📊 Топ ваших ошибок по блюдам</h3>
+            <div id="stats-errors-list"><p style="color:var(--text-sub); font-size:0.85rem;">Пока нет ошибок. Отличный результат! 🎉</p></div>
+        </div>
+
         <div class="overlay-card">
             <h3 style="font-size:1.05rem; margin-bottom:12px; color:#fff;">➕ Добавить новое блюдо</h3>
             <input type="text" class="text-input" id="new-name" placeholder="Название блюда">
@@ -511,7 +470,6 @@
         </div>
     </div>
 
-    <!-- Нижняя панель действий -->
     <div class="bottom-actions">
         <a class="errors-link" onclick="toggleErrorFilter()">⚠️ Мои ошибки ( <span id="err-count">0</span> )</a>
         <a class="reset-link" onclick="resetStats()">Сбросить статистику</a>
@@ -522,7 +480,21 @@
     </div>
 
     <script>
-        const defaultMenu = [
+        // Функция нормализации названий ингредиентов
+        function normalizeIng(name) {
+            let str = name.trim().toLowerCase();
+            const synMap = {
+                "соевый соус темный": "темный соевый соус",
+                "соевый соус светлый": "светлый соевый соус",
+                "зеленый лук перо": "зеленый лук",
+                "лук перо": "зеленый лук",
+                "сушеный чили перец": "чили перец",
+                "чили перец": "чили перец"
+            };
+            return synMap[str] || str;
+        }
+
+        const rawDefaultMenu = [
             { id: 1, name: "1. Салатная заправка", ingredients: ["устричный соус", "соевый соус", "сахар", "белый рисовый уксус", "чеснок", "имбирь", "зеленый лук", "чили перец"] },
             { id: 2, name: "2. Крылышки Сычуаньские", ingredients: ["качудян", "томатная паста", "соевый соус"] },
             { id: 3, name: "3. 5 специй", ingredients: ["бадьян", "сычуаньский перец", "корица", "имбирь", "кориандр"] },
@@ -537,27 +509,34 @@
             { id: 12, name: "12. Хун шао соус", ingredients: ["бадьян", "лавровый лист", "корица", "сычуаньский перец горошком", "черный перец горошком", "соевый соус", "темный соевый соус", "вино шаосиньское"] },
             { id: 13, name: "13. Пекинская свинина", ingredients: ["свинина 150г", "соус барбекю", "хойсин", "чеснок", "имбирь"] },
             { id: 14, name: "14. Говядина в ЧП (Черный перец)", ingredients: ["морковь", "лук", "перец", "брокколи", "мини-кукуруза", "стручковая фасоль", "соус блэк пеппер"] },
-            { id: 15, name: "15. Монгольская говядина", ingredients: ["говядина", "морковь", "болгарский перец", "лук репчатый", "сушеный чили перец", "соус чоу-мейн", "лук перо", "сахар", "вино шаосиньское", "основания лука"] },
+            { id: 15, name: "15. Монгольская говядина", ingredients: ["говядина", "морковь", "болгарский перец", "лук репчатый", "чили перец", "соус чоу-мейн", "зеленый лук", "сахар", "вино шаосиньское", "основания лука"] },
             { id: 16, name: "16. Баранина", ingredients: ["баранина", "зира", "кинза", "фиолетовый лук", "соевый соус", "вино"] },
             { id: 17, name: "17. Креветки в тайском стиле", ingredients: ["креветки", "листья лайма", "лемонграсс", "чеснок", "имбирь", "соус тайваньской чили пасты", "базилик", "соевый соус"] },
             { id: 18, name: "18. Баклажан со свининой", ingredients: ["баклажан", "свинина", "соус табадзян", "чеснок", "имбирь", "сахар", "вино шаосиньское"] },
-            { id: 19, name: "19. Пикантный баклажан", ingredients: ["баклажан", "соевый соус темный", "соевый соус светлый", "белый рисовый уксус", "сахар"] },
+            { id: 19, name: "19. Пикантный баклажан", ingredients: ["баклажан", "темный соевый соус", "светлый соевый соус", "белый рисовый уксус", "сахар"] },
             { id: 20, name: "20. Тофу по-домашнему", ingredients: ["тофу", "основания лука", "морковь", "болгарский перец", "шиитаке", "муэр", "соус юсянь"] },
             { id: 21, name: "21. Три земных свежести", ingredients: ["картофель/перец/баклажан", "соус маласянь", "устричный соус", "сахар"] }
         ];
+
+        // Нормализуем ингредиенты меню
+        const defaultMenu = rawDefaultMenu.map(d => ({
+            ...d,
+            ingredients: Array.from(new Set(d.ingredients.map(normalizeIng)))
+        }));
 
         let menuData = JSON.parse(localStorage.getItem('customMenuData')) || defaultMenu;
         let allIngredients = [];
         let questionCounter = 1;
 
         function refreshIngredients() {
-            allIngredients = Array.from(new Set(menuData.flatMap(d => d.ingredients)));
+            allIngredients = Array.from(new Set(menuData.flatMap(d => d.ingredients.map(normalizeIng))));
         }
 
         let currentDish = null;
         let selectedChips = new Set();
         let streak = 0;
         let maxStreak = localStorage.getItem('maxStreak') || 0;
+        let errorCounts = JSON.parse(localStorage.getItem('errorCounts')) || {};
         let errorList = JSON.parse(localStorage.getItem('errorList')) || [];
         let isChecked = false;
         let tfCurrent = {};
@@ -567,6 +546,7 @@
             refreshIngredients();
             updateStats();
             renderDict();
+            renderErrorStats();
             initChecklistSelect();
             nextBuild();
             nextTF();
@@ -581,19 +561,16 @@
                 document.getElementById('view-' + tab).classList.remove('hidden');
             } else {
                 document.getElementById('view-dict').classList.remove('hidden');
+                renderErrorStats();
             }
         }
 
         function toggleDict() {
             const isDictVisible = !document.getElementById('view-dict').classList.contains('hidden');
-            if (isDictVisible) {
-                switchTab('build');
-            } else {
-                switchTab('dict');
-            }
+            if (isDictVisible) switchTab('build');
+            else switchTab('dict');
         }
 
-        /* --- РЕЖИМ: СБОР СОСТАВА --- */
         function nextBuild() {
             isChecked = false;
             selectedChips.clear();
@@ -611,7 +588,7 @@
             const correct = currentDish.ingredients;
             const wrongCandidates = allIngredients.filter(i => !correct.includes(i));
             const wrong = wrongCandidates.sort(() => 0.5 - Math.random()).slice(0, Math.min(4, wrongCandidates.length));
-            const options = [...correct, ...wrong].sort(() => 0.5 - Math.random());
+            const options = Array.from(new Set([...correct, ...wrong])).sort(() => 0.5 - Math.random());
 
             const container = document.getElementById('build-chips');
             container.innerHTML = '';
@@ -654,7 +631,6 @@
             const missedIngs = [];
             const extraIngs = [];
 
-            // Проверяем выбранные и невыбранные ингредиенты
             document.querySelectorAll('#build-chips .chip').forEach(chip => {
                 const text = chip.textContent;
                 const isSelected = selectedChips.has(text);
@@ -673,7 +649,6 @@
 
             const isTotallyCorrect = (missedIngs.length === 0 && extraIngs.length === 0);
 
-            // Показываем подробный разбор
             const feedbackBox = document.getElementById('build-feedback');
             feedbackBox.classList.remove('hidden');
 
@@ -703,7 +678,6 @@
             btn.style.background = isTotallyCorrect ? 'var(--green)' : 'var(--accent-pink)';
         }
 
-        /* --- РЕЖИМ: ПРАВДА / ЛОЖЬ --- */
         function nextTF() {
             document.getElementById('tf-actions').classList.remove('hidden');
             document.getElementById('tf-feedback').classList.add('hidden');
@@ -743,7 +717,6 @@
             document.getElementById('tf-next-btn').classList.remove('hidden');
         }
 
-        /* --- ЧЕК-ЛИСТ --- */
         function initChecklistSelect() {
             const select = document.getElementById('checklist-select');
             select.innerHTML = '';
@@ -764,7 +737,7 @@
 
             const wrongCandidates = allIngredients.filter(i => !dish.ingredients.includes(i));
             const wrong = wrongCandidates.sort(() => 0.5 - Math.random()).slice(0, 4);
-            const options = [...dish.ingredients, ...wrong].sort(() => 0.5 - Math.random());
+            const options = Array.from(new Set([...dish.ingredients, ...wrong])).sort(() => 0.5 - Math.random());
 
             options.forEach(ing => {
                 const chip = document.createElement('div');
@@ -786,13 +759,12 @@
             });
         }
 
-        /* --- РЕДАКТОР И СПРАВОЧНИК --- */
         function addNewDish() {
             const name = document.getElementById('new-name').value.trim();
             const ings = document.getElementById('new-ings').value.trim();
             if (!name || !ings) return alert("Заполните название и состав!");
 
-            const ingredients = ings.split(',').map(i => i.trim().toLowerCase()).filter(i => i);
+            const ingredients = ings.split(',').map(i => normalizeIng(i)).filter(i => i);
             const newId = menuData.length > 0 ? Math.max(...menuData.map(d => d.id)) + 1 : 1;
 
             menuData.push({ id: newId, name: `${newId}. ${name}`, ingredients });
@@ -800,6 +772,7 @@
             refreshIngredients();
             updateStats();
             renderDict();
+            renderErrorStats();
             initChecklistSelect();
             document.getElementById('new-name').value = '';
             document.getElementById('new-ings').value = '';
@@ -814,12 +787,19 @@
                     localStorage.setItem('maxStreak', maxStreak);
                 }
                 errorList = errorList.filter(id => id !== dishId);
+                if (errorCounts[dishId]) {
+                    errorCounts[dishId] = Math.max(0, errorCounts[dishId] - 1);
+                    if (errorCounts[dishId] === 0) delete errorCounts[dishId];
+                }
             } else {
                 streak = 0;
                 if (!errorList.includes(dishId)) errorList.push(dishId);
+                errorCounts[dishId] = (errorCounts[dishId] || 0) + 1;
             }
             localStorage.setItem('errorList', JSON.stringify(errorList));
+            localStorage.setItem('errorCounts', JSON.stringify(errorCounts));
             updateStats();
+            renderErrorStats();
         }
 
         function updateStats() {
@@ -837,12 +817,42 @@
         }
 
         function resetStats() {
-            if (confirm("Сбросить статистику серии и список ошибок?")) {
+            if (confirm("Сбросить статистику серии, список и счётчики ошибок?")) {
                 streak = 0;
                 errorList = [];
+                errorCounts = {};
                 localStorage.removeItem('errorList');
+                localStorage.removeItem('errorCounts');
                 updateStats();
+                renderErrorStats();
             }
+        }
+
+        function renderErrorStats() {
+            const container = document.getElementById('stats-errors-list');
+            const sortedErrors = Object.entries(errorCounts).sort((a, b) => b[1] - a[1]);
+
+            if (sortedErrors.length === 0) {
+                container.innerHTML = `<p style="color:var(--text-sub); font-size:0.85rem;">Пока нет ошибок. Отличный результат! 🎉</p>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            sortedErrors.forEach(([dishId, count]) => {
+                const dish = menuData.find(d => d.id == dishId);
+                if (!dish) return;
+
+                const item = document.createElement('div');
+                item.className = 'dict-item';
+                item.innerHTML = `
+                    <div class="dict-item-info">
+                        <h4>${dish.name}</h4>
+                        <p>Ошибок допущено: <b>${count} раз(а)</b></p>
+                    </div>
+                    <div class="err-badge-count">⚠️ ${count}</div>
+                `;
+                container.appendChild(item);
+            });
         }
 
         function renderDict(filter = '') {
@@ -855,7 +865,7 @@
             filtered.forEach(d => {
                 const item = document.createElement('div');
                 item.className = 'dict-item';
-                item.innerHTML = `<h4>${d.name}</h4><p><b>Состав:</b> ${d.ingredients.join(', ')}</p>`;
+                item.innerHTML = `<div class="dict-item-info"><h4>${d.name}</h4><p><b>Состав:</b> ${d.ingredients.join(', ')}</p></div>`;
                 container.appendChild(item);
             });
         }
