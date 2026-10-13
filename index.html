@@ -612,12 +612,8 @@
         </div>
 
         <div class="overlay-card">
-            <h3 style="font-size:1.05rem; margin-bottom:12px; color:#fff;">💾 Экспорт / Импорт меню</h3>
-            <div style="display:flex; gap:8px;">
-                <button class="secondary-btn" style="margin-top:0;" onclick="exportMenu()">📥 Скачать файл</button>
-                <button class="secondary-btn" style="margin-top:0;" onclick="document.getElementById('import-file').click()">📂 Загрузить файл</button>
-                <input type="file" id="import-file" class="hidden" accept=".json" onchange="importMenu(event)">
-            </div>
+            <h3 style="font-size:1.05rem; margin-bottom:12px; color:#fff;">🌐 Скачать готовый index.html для GitHub</h3>
+            <button class="primary-btn" style="background:#2ed573; color:#000;" onclick="exportMenu()">📥 Скачать index.html</button>
         </div>
 
         <div class="overlay-card">
@@ -641,7 +637,7 @@
     <div id="edit-modal" class="modal-overlay hidden">
         <div class="modal-card">
             <div class="modal-title">✏️ Редактирование позиции</div>
-            <label style="font-size:0.78rem; color:var(--text-sub); display:block; margin-bottom:4px;">Название (можно с номером, напр: 1. Название):</label>
+            <label style="font-size:0.78rem; color:var(--text-sub); display:block; margin-bottom:4px;">Название:</label>
             <input type="text" class="text-input" id="edit-name">
             
             <label style="font-size:0.78rem; color:var(--text-sub); display:block; margin-bottom:4px;">Категория:</label>
@@ -1117,36 +1113,33 @@
             initChecklistSelect();
         }
 
+        // КНОПКА СКАЧИВАНИЯ ГОТОВОГО HTML САЙТА С НОВЫМ МЕНЮ
         function exportMenu() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(menuData, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "promenu_fu_dog_backup.json");
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
+            sortMenu();
+            const updatedHtml = document.documentElement.outerHTML.replace(
+                /let menuData = \[[\s\S]*?\];/, 
+                'let menuData = ' + JSON.stringify(menuData, null, 8) + ';'
+            );
 
-        function importMenu(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const importedData = JSON.parse(e.target.result);
-                    if (Array.isArray(importedData)) {
-                        menuData = importedData;
-                        saveMenuData();
-                        nextBuild();
-                        alert("Меню успешно загружено из файла! 🎉");
-                    } else {
-                        alert("Ошибка: неверный формат файла.");
-                    }
-                } catch (err) {
-                    alert("Ошибка при чтении файла JSON.");
-                }
-            };
-            reader.readAsText(file);
+            const blob = new Blob([updatedHtml], { type: 'text/html;charset=utf-8' });
+            const file = new File([blob], "index.html", { type: 'text/html' });
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                navigator.share({
+                    files: [file],
+                    title: 'index.html',
+                    text: 'Готовый измененный файл сайта'
+                }).catch(() => {});
+            } else {
+                const url = URL.createObjectURL(blob);
+                const downloadAnchor = document.createElement('a');
+                downloadAnchor.setAttribute("href", url);
+                downloadAnchor.setAttribute("download", "index.html");
+                document.body.appendChild(downloadAnchor);
+                downloadAnchor.click();
+                downloadAnchor.remove();
+                URL.revokeObjectURL(url);
+            }
         }
 
         function handleResult(isCorrect, dishId) {
@@ -1303,9 +1296,10 @@
                     </div>
                     <div class="dict-item-actions">
                         <button class="action-icon-btn" onclick="openEditModal(${d.id})">✏️</button>
-                        <button class="action-icon-btn" onclick="deleteDish(${d.id})">🗑️</button>
+                        <button class="action-icon-btn">🗑️</button>
                     </div>
                 `;
+                item.querySelector('.action-icon-btn:last-child').onclick = () => deleteDish(d.id);
                 container.appendChild(item);
             });
         }
@@ -1315,7 +1309,6 @@
             renderDict(sb ? sb.value : '');
         }
 
-        // Запуск при загрузке DOM
         window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
